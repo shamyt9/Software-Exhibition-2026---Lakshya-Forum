@@ -426,18 +426,7 @@ Expected: Fake News | Risk: MEDIUM | Legal: 505 IPC, 66A IT Act
 
 ---
 
----
 
-
----
-
-## 🙏 Acknowledgments
-
-- **IGNOU** – For providing the MCA curriculum and project framework
-- **Uttar Pradesh Police** – For problem statement inspiration
-- **NCRB** – For cybercrime statistics and data
-- **RBI** – For compliance guidelines
-- **Open Source Community** – Flask, MongoDB, Scikit-learn
 
 ---
 
