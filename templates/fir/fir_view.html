@@ -1,0 +1,273 @@
+{% extends "base.html" %} {% block content %}
+
+<div style="max-width: 900px; margin: 0 auto">
+    <!-- Header -->
+    <div
+        style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        "
+    >
+        <div>
+            <h2 style="color: #111827">FIR Draft Generator</h2>
+            <p style="color: #6B7280">{{ complaint.complaint_id }}</p>
+        </div>
+        <a
+            href="{{ url_for('complaint.view_complaint', cmp_id=complaint.complaint_id) }}"
+            style="color: #3B82F6; text-decoration: none"
+            >← Back to complaint</a
+        >
+    </div>
+
+    <!-- Status banner if already registered -->
+    {% if existing_fir and existing_fir.status == 'registered' %}
+    <div
+        style="
+            background: #D1FAE5;
+            border-left: 5px solid #059669;
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        "
+    >
+        <strong style="color: #047857">✅ FIR Already Registered</strong>
+        <span style="margin-left: 16px; color: #1F2937">
+            FIR No: <strong>{{ existing_fir.fir_number }}</strong> &nbsp;|&nbsp;
+            PS: {{ existing_fir.police_station }}
+        </span>
+    </div>
+    {% endif %}
+
+    <!-- AI Summary card -->
+    <div class="detail-card">
+        <h3>AI Classification Summary</h3>
+        <div class="detail-grid">
+            <div>
+                <label>Predicted Category</label>
+                <p style="color: #111827; font-weight: bold">
+                    {{ prediction.category_label }}
+                </p>
+            </div>
+            <div>
+                <label>Confidence</label>
+                <p>{{ (prediction.confidence * 100) | round(1) }}%</p>
+            </div>
+            <div>
+                <label>Risk Level</label>
+                <p>
+                    {% if risk %}
+                    <span
+                        class="badge {% if risk.risk_level == 'HIGH' %}badge-high {% elif risk.risk_level == 'MEDIUM' %}badge-medium {% else %}badge-low{% endif %}"
+                    >
+                        {{ risk.risk_level }}
+                    </span>
+                    {% else %}—{% endif %}
+                </p>
+            </div>
+            <div>
+                <label>Amount Involved</label>
+                <p>
+                    Rs. {{ "{:,.0f}".format(complaint.amount_involved) if
+                    complaint.amount_involved else "Not specified" }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIR Form -->
+    <form
+        method="POST"
+        action="{{ url_for('fir.fir_save', cmp_id=complaint.complaint_id) }}"
+    >
+        <!-- Police Station & FIR Number -->
+        <div class="form-section">
+            <h3>FIR Details</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Police Station Name *</label>
+                    <input
+                        type="text"
+                        name="ps_name"
+                        required
+                        value="{{ existing_fir.police_station if existing_fir else 'Cyber Cell ' + complaint.district }}"
+                        placeholder="e.g. Cyber Cell Lucknow"
+                    />
+                </div>
+                <div class="form-group">
+                    <label>FIR Number (auto-generated on register)</label>
+                    <input
+                        type="text"
+                        name="fir_number"
+                        value="{{ existing_fir.fir_number if existing_fir and existing_fir.fir_number else '' }}"
+                        placeholder="Leave blank to auto-generate"
+                    />
+                </div>
+            </div>
+        </div>
+
+        <!-- Legal Sections -->
+        <div class="form-section">
+            <h3>Applicable Legal Sections</h3>
+            <div
+                style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 10px;
+                    margin-bottom: 16px;
+                "
+            >
+                {% for section in template.sections %}
+                <span
+                    style="
+                        background: rgba(56, 189, 248, 0.15);
+                        color: #38bdf8;
+                        padding: 6px 14px;
+                        border-radius: 20px;
+                        font-size: 13px;
+                        font-weight: bold;
+                    "
+                >
+                    {{ section }}
+                </span>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                <label>Sections (comma-separated, editable)</label>
+                <input
+                    type="text"
+                    name="sections"
+                    value="{{ existing_fir.sections | join(', ') if existing_fir else template.sections | join(', ') }}"
+                />
+            </div>
+        </div>
+
+        <!-- FIR Text -->
+        <div class="form-section">
+            <h3>FIR Text (Auto-Generated Draft)</h3>
+            <div class="form-group">
+                <textarea
+                    name="fir_text"
+                    rows="16"
+                    style="
+                        font-family: monospace;
+                        font-size: 14px;
+                        line-height: 1.8;
+                    "
+                >
+{% if existing_fir %}{{ existing_fir.fir_text_draft }}{% else %}
+FIRST INFORMATION REPORT
+(Under Section 154 CrPC)
+
+Police Station: Cyber Cell {{ complaint.district }}
+District: {{ complaint.district }}, Uttar Pradesh
+Date of FIR: {{ complaint.submitted_at.strftime('%d-%m-%Y') if complaint.submitted_at else '—' }}
+
+COMPLAINANT DETAILS:
+Name    : {{ complaint.complainant_name }}
+Mobile  : {{ complaint.mobile }}
+District: {{ complaint.district }}
+
+COMPLAINT REGISTERED ON: {{ complaint.submitted_at.strftime('%d-%m-%Y %H:%M') if complaint.submitted_at else '—' }}
+COMPLAINT ID: {{ complaint.complaint_id }}
+
+FACTS OF THE CASE:
+{{ complaint.complaint_text }}
+
+{% if transaction %}
+TRANSACTION DETAILS:
+Transaction ID : {{ transaction.txn_id }}
+Bank           : {{ transaction.bank_name }}
+Account        : {{ transaction.account_masked }}
+Amount         : Rs. {{ "{:,.0f}".format(transaction.amount) }}
+Channel        : {{ transaction.channel }}
+Beneficiary    : {{ transaction.beneficiary or '—' }}
+{% endif %}
+
+AI CLASSIFICATION:
+Predicted Category : {{ prediction.category_label }}
+Confidence Score   : {{ (prediction.confidence * 100) | round(1) }}%
+Risk Level         : {{ risk.risk_level if risk else '—' }}
+
+APPLICABLE LEGAL SECTIONS:
+{% for section in template.sections %}
+- {{ section }}
+{% endfor %}
+
+RECOMMENDED INVESTIGATION STEPS:
+{% for step in template.steps %}
+{{ loop.index }}. {{ step }}
+{% endfor %}
+DECLARATION:
+The above information is true to the best of my knowledge and belief.
+No part of this complaint is false and nothing material has been concealed.
+
+Investigating Officer: ________________________________
+Designation         : ________________________________
+Date                : ________________________________
+Signature           : ________________________________
+{% endif %}
+                </textarea>
+            </div>
+        </div>
+
+        <!-- Action buttons -->
+        <div style="display: flex; gap: 12px; flex-wrap: wrap">
+            <button
+                type="submit"
+                name="action"
+                value="draft"
+                class="btn-primary"
+                style="width: auto; padding: 12px 28px"
+            >
+                💾 Save as Draft
+            </button>
+            <button
+                type="submit"
+                name="action"
+                value="register"
+                style="
+                    padding: 12px 28px;
+                    background: #2e7d32;
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-size: 15px;
+                "
+                onclick="
+                    return confirm(
+                        'Register this FIR officially? This cannot be undone.',
+                    );
+                "
+            >
+                ✅ Register FIR
+            </button>
+            <a
+                href="{{ url_for('complaint.view_complaint', cmp_id=complaint.complaint_id) }}"
+                style="
+                    padding: 12px 24px;
+                    border: 1px solid #ccc;
+                    border-radius: 6px;
+                    text-decoration: none;
+                    color: #444;
+                "
+            >
+                Cancel
+            </a>
+        </div>
+    </form>
+
+    <!-- Investigation Steps -->
+    <div class="detail-card" style="margin-top: 24px">
+        <h3>Recommended Investigation Steps</h3>
+        <ol style="padding-left: 20px; line-height: 2">
+            {% for step in template.steps %}
+            <li style="color: #333; font-size: 14px">{{ step }}</li>
+            {% endfor %}
+        </ol>
+    </div>
+</div>
+
+{% endblock %}

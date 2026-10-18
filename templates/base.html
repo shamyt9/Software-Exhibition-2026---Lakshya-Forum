@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>AICM-DSS | UP Cyber Police</title>
+        <style>
+            :root {
+                --primary-dark: #1E3A5F;
+                --primary-blue: #3B82F6;
+                --primary-light: #60A5FA;
+                --secondary-gray: #6B7280;
+                --accent-gold: #BFDBFE;
+                --border-gray: #E5E7EB;
+                --text-dark: #111827;
+                --text-gray: #6B7280;
+                --bg-light: #F3F4F6;
+                --white: #FFFFFF;
+                --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+                --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+        </style>
+        <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/style.css') }}"
+        />
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    </head>
+    <body>
+        {% if current_user.is_authenticated %}
+        <nav class="navbar">
+            <div class="nav-brand">🛡️ AICM-DSS</div>
+            <div class="nav-links">
+                <a href="{{ url_for('dashboard.home') }}">Dashboard</a>
+                <a href="{{ url_for('complaint.list_complaints') }}"
+                    >Complaints</a
+                >
+                <a href="{{ url_for('assignment.my_cases') }}">My Cases</a>
+                <a href="{{ url_for('complaint.priority_queue') }}"
+                    >🚨 Priority Queue</a
+                >
+                {% if current_user.role in ['admin', 'supervisor', 'sp', 'cci',
+                'io'] %}
+                <a href="{{ url_for('freeze.list_freeze_requests') }}"
+                    >❄️ Freeze Requests</a
+                >
+                {% endif %}
+                <a href="{{ url_for('reports.reports') }}">Reports</a>
+                {% if current_user.role in ['admin','supervisor'] %}
+                <a href="{{ url_for('reports.audit_logs') }}">Audit Logs</a>
+                <a href="{{ url_for('dashboard.admin_panel') }}">Users</a>
+                {% endif %}
+                <span class="nav-user"
+                    >{{ current_user.full_name }} ({{ current_user.role
+                    }})</span
+                >
+                <a
+                    href="{{ url_for('auth.logout') }}"
+                    style="
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        padding: 6px 14px;
+                        font-size: 13px;
+                        font-weight: 500;
+                        color: #DC2626;
+                        background: #FEE2E2;
+                        border: 1px solid #FECACA;
+                        border-radius: 20px;
+                        text-decoration: none;
+                        transition: all 0.2s ease;
+                        cursor: pointer;
+                    "
+                    onmouseover="
+                        this.style.background = '#DC2626';
+                        this.style.color = 'white';
+                        this.style.borderColor = '#DC2626';
+                        this.style.transform = 'translateY(-1px)';
+                        this.style.boxShadow = '0 2px 8px rgba(220,38,38,0.3)';
+                    "
+                    onmouseout="
+                        this.style.background = '#FEE2E2';
+                        this.style.color = '#DC2626';
+                        this.style.borderColor = '#FECACA';
+                        this.style.transform = 'translateY(0)';
+                        this.style.boxShadow = 'none';
+                    "
+                >
+                    <span style="font-size: 14px">🚪</span>
+                    Logout
+                </a>
+            </div>
+        </nav>
+        {% endif %}
+
+        <div class="container">
+            {% with messages = get_flashed_messages(with_categories=true) %} {%
+            for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %} {% endwith %} {% block content %}{% endblock %}
+        </div>
+    </body>
+</html>

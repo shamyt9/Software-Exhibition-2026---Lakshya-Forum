@@ -1,0 +1,192 @@
+{% extends "base.html" %} {% block content %}
+
+<div style="max-width: 600px; margin: 0 auto">
+    <div
+        style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+        "
+    >
+        <div>
+            <h2 style="color: #111827">Add New User</h2>
+            <p style="color: #6B7280; margin-top: 4px">
+                Create a new officer or analyst account
+            </p>
+        </div>
+        <a
+            href="{{ url_for('dashboard.admin_panel') }}"
+            style="color: #3B82F6; text-decoration: none; font-weight: 500"
+            >← Back to Users</a
+        >
+    </div>
+
+    <div class="form-section">
+        <form method="POST" action="{{ url_for('dashboard.add_user') }}">
+            <div class="form-group">
+                <label>Full Name *</label>
+                <input
+                    type="text"
+                    name="full_name"
+                    required
+                    placeholder="e.g. Rajesh Kumar Singh"
+                />
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Username *</label>
+                    <input
+                        type="text"
+                        name="username"
+                        required
+                        placeholder="e.g. rajesh.kumar"
+                    />
+                </div>
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input
+                        type="email"
+                        name="email"
+                        required
+                        placeholder="e.g. rajesh@upcyber.gov.in"
+                    />
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Role *</label>
+                    <select name="role" required>
+                        <option value="officer">Investigating Officer</option>
+                        <option value="analyst">Cyber Analyst</option>
+                        <option value="supervisor">Supervisory Officer</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>District *</label>
+                    <select name="district" required>
+                        <option value="">-- Select District --</option>
+                        <option>Agra</option>
+                        <option>Aligarh</option>
+                        <option>Ambedkar Nagar</option>
+                        <option>Amethi</option>
+                        <option>Amroha</option>
+                        <option>Auraiya</option>
+                        <option>Ayodhya</option>
+                        <option>Azamgarh</option>
+                        <option>Baghpat</option>
+                        <option>Bahraich</option>
+                        <option>Ballia</option>
+                        <option>Balrampur</option>
+                        <option>Banda</option>
+                        <option>Barabanki</option>
+                        <option>Bareilly</option>
+                        <option>Basti</option>
+                        <option>Bhadohi</option>
+                        <option>Bijnor</option>
+                        <option>Budaun</option>
+                        <option>Bulandshahr</option>
+                        <option>Chandauli</option>
+                        <option>Chitrakoot</option>
+                        <option>Deoria</option>
+                        <option>Etah</option>
+                        <option>Etawah</option>
+                        <option>Farrukhabad</option>
+                        <option>Fatehpur</option>
+                        <option>Firozabad</option>
+                        <option>Gautam Buddha Nagar</option>
+                        <option>Ghaziabad</option>
+                        <option>Ghazipur</option>
+                        <option>Gonda</option>
+                        <option>Gorakhpur</option>
+                        <option>Hamirpur</option>
+                        <option>Hapur</option>
+                        <option>Hardoi</option>
+                        <option>Hathras</option>
+                        <option>Jalaun</option>
+                        <option>Jaunpur</option>
+                        <option>Jhansi</option>
+                        <option>Kannauj</option>
+                        <option>Kanpur Dehat</option>
+                        <option>Kanpur Nagar</option>
+                        <option>Kasganj</option>
+                        <option>Kaushambi</option>
+                        <option>Kushinagar</option>
+                        <option>Lakhimpur Kheri</option>
+                        <option>Lalitpur</option>
+                        <option>Lucknow</option>
+                        <option>Maharajganj</option>
+                        <option>Mahoba</option>
+                        <option>Mainpuri</option>
+                        <option>Mathura</option>
+                        <option>Mau</option>
+                        <option>Meerut</option>
+                        <option>Mirzapur</option>
+                        <option>Moradabad</option>
+                        <option>Muzaffarnagar</option>
+                        <option>Pilibhit</option>
+                        <option>Pratapgarh</option>
+                        <option>Prayagraj</option>
+                        <option>Raebareli</option>
+                        <option>Rampur</option>
+                        <option>Saharanpur</option>
+                        <option>Sambhal</option>
+                        <option>Sant Kabir Nagar</option>
+                        <option>Shahjahanpur</option>
+                        <option>Shamli</option>
+                        <option>Shravasti</option>
+                        <option>Siddharthnagar</option>
+                        <option>Sitapur</option>
+                        <option>Sonbhadra</option>
+                        <option>Sultanpur</option>
+                        <option>Unnao</option>
+                        <option>Varanasi</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Password *</label>
+                <input
+                    type="password"
+                    name="password"
+                    required
+                    placeholder="Minimum 6 characters"
+                    minlength="6"
+                />
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-top: 8px">
+                <button
+                    type="submit"
+                    class="btn-primary"
+                    style="width: auto; padding: 12px 32px"
+                >
+                    Create User
+                </button>
+                <a
+                    href="{{ url_for('dashboard.admin_panel') }}"
+                    style="
+                        padding: 12px 24px;
+                        border: 1px solid #D1D5DB;
+                        border-radius: 6px;
+                        text-decoration: none;
+                        color: #374151;
+                        background: #F9FAFB;
+                        transition: all 0.2s ease;
+                        font-weight: 500;
+                    "
+                    onmouseover="this.style.background='#E5E7EB'; this.style.borderColor='#9CA3AF';"
+                    onmouseout="this.style.background='#F9FAFB'; this.style.borderColor='#D1D5DB';"
+                >
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,160 @@
+{% extends "base.html" %} {% block content %}
+
+<div
+    style="
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    "
+>
+    <div>
+        <h2 style="color: #111827">
+            {% if current_user.role in ['officer','analyst'] %} My Assigned
+            Cases {% else %} All Cases {% endif %}
+        </h2>
+        <p style="color: #6B7280; margin-top: 4px">
+            {{ complaints | length }} case(s) found
+        </p>
+    </div>
+    <a
+        href="{{ url_for('complaint.new_complaint') }}"
+        class="btn-primary"
+        style="width: auto; padding: 10px 24px"
+        >+ New Complaint</a
+    >
+</div>
+
+{% if complaints %}
+
+<!-- Priority filter tabs -->
+<div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap">
+    {% set priorities = ['all', 'urgent', 'high', 'normal'] %} {% for p in
+    priorities %}
+    <button
+        onclick="filterPriority('{{ p }}')"
+        id="tab-{{ p }}"
+        style="padding:8px 18px; border-radius:20px; border:1px solid #D1D5DB;
+                   background:{% if p == 'all' %}#3B82F6{% else %}transparent{% endif %};
+                   color:{% if p == 'all' %}white{% else %}#374151{% endif %};
+                   cursor:pointer; font-size:13px;"
+    >
+        {{ p | title }}
+    </button>
+    {% endfor %}
+</div>
+
+<div style="overflow-x: auto">
+    <table class="data-table" id="cases-table">
+        <thead>
+            <tr>
+                <th>Complaint ID</th>
+                <th>Complainant</th>
+                <th>District</th>
+                <th>Crime Type</th>
+                <th>Amount (Rs.)</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Assigned To</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in complaints %}
+            <tr data-priority="{{ c.get('priority', 'normal') }}">
+                <td><code>{{ c.complaint_id }}</code></td>
+                <td>{{ c.complainant_name }}</td>
+                <td>{{ c.district }}</td>
+                <td style="font-size: 13px">
+                    {{ c.crime_type | replace('_',' ') | title if c.crime_type
+                    else '—' }}
+                </td>
+                <td>
+                    {{ "{:,.0f}".format(c.amount_involved) if c.amount_involved
+                    else '—' }}
+                </td>
+                <td>
+                    {% set p = c.get('priority', 'normal') %}
+                    <span
+                        style="padding:3px 10px; border-radius:20px; font-size:12px; font-weight:bold;
+                {% if p == 'urgent' %}background:#FEE2E2;color:#DC2626;
+                {% elif p == 'high' %}background:#FEF3C7;color:#D97706;
+                {% else %}background:#DBEAFE;color:#1D4ED8;{% endif %}"
+                    >
+                        {{ p | upper }}
+                    </span>
+                </td>
+                <td>
+                    <span class="badge badge-{{ c.status }}"
+                        >{{ c.status }}</span
+                    >
+                </td>
+                <td style="font-size: 13px">
+                    {{ c.get('assigned_to_name', '—') }}
+                </td>
+                <td>
+                    <div style="display: flex; gap: 6px">
+                        <a
+                            href="{{ url_for('complaint.view_complaint', cmp_id=c.complaint_id) }}"
+                            class="btn-sm"
+                            >View</a
+                        >
+                        {% if current_user.role in ['admin','supervisor'] %}
+                        <a
+                            href="{{ url_for('assignment.assign', cmp_id=c.complaint_id) }}"
+                            class="btn-sm"
+                            style="background: #7C3AED"
+                            >Assign</a
+                        >
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% else %}
+<div style="text-align: center; padding: 60px; color: #9CA3AF">
+    <p style="font-size: 18px">No cases assigned yet.</p>
+    {% if current_user.role in ['admin','supervisor'] %}
+    <p style="margin-top: 8px">
+        Go to complaints list and assign cases to officers.
+    </p>
+    <a
+        href="{{ url_for('complaint.list_complaints') }}"
+        class="btn-primary"
+        style="
+            width: auto;
+            padding: 10px 24px;
+            display: inline-block;
+            margin-top: 16px;
+        "
+    >
+        View All Complaints
+    </a>
+    {% endif %}
+</div>
+{% endif %}
+
+<script>
+    function filterPriority(priority) {
+        const rows = document.querySelectorAll('#cases-table tbody tr');
+        rows.forEach((row) => {
+            if (priority === 'all' || row.dataset.priority === priority) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        // Update tab styles
+        ['all', 'urgent', 'high', 'normal'].forEach((p) => {
+            const tab = document.getElementById('tab-' + p);
+            tab.style.background = p === priority ? '#1a237e' : 'white';
+            tab.style.color = p === priority ? 'white' : '#444';
+        });
+    }
+</script>
+
+{% endblock %}

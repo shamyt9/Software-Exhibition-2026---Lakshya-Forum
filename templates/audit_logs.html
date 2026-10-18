@@ -1,0 +1,207 @@
+{% extends "base.html" %} {% block content %}
+
+<style>
+    .audit-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+        padding-bottom: 24px;
+        border-bottom: 2px solid var(--border-gray);
+    }
+
+    .audit-header h2 {
+        color: var(--primary-dark);
+        font-size: 32px;
+        font-weight: 700;
+        margin: 0;
+        letter-spacing: -0.5px;
+    }
+
+    .audit-header p {
+        color: var(--text-gray);
+        font-size: 14px;
+        margin-top: 8px;
+        margin-bottom: 0;
+    }
+
+    .back-btn {
+        color: var(--primary-blue);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 10px 18px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .back-btn:hover {
+        background-color: rgba(0, 82, 163, 0.08);
+        color: var(--primary-dark);
+    }
+
+    .action-badge {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        white-space: nowrap;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        transition: all 0.2s ease;
+    }
+
+    .action-badge:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
+    }
+
+    .action-login {
+        background: linear-gradient(135deg, #a5d6a7 0%, #81c784 100%);
+        color: #1b5e20;
+    }
+
+    .action-logout {
+        background: linear-gradient(
+            135deg,
+            var(--accent-purple) 0%,
+            var(--accent-cyan) 100%
+        );
+        color: var(--bg-primary);
+    }
+
+    .action-fir {
+        background: linear-gradient(135deg, #81d4fa 0%, #4fc3f7 100%);
+        color: var(--accent-cyan);
+    }
+
+    .action-classified {
+        background: linear-gradient(135deg, #ce93d8 0%, #ba68c8 100%);
+        color: #4a148c;
+    }
+
+    .action-assigned {
+        background: linear-gradient(135deg, #80deea 0%, #4dd0e1 100%);
+        color: #00838f;
+    }
+
+    .action-default {
+        background: linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%);
+        color: #37474f;
+    }
+
+    .complaint-link {
+        color: var(--primary-blue);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 13px;
+        transition: all 0.2s ease;
+    }
+
+    .complaint-link:hover {
+        color: var(--primary-dark);
+        text-decoration: underline;
+    }
+
+    .details-cell {
+        color: var(--text-gray);
+        font-size: 13px;
+        max-width: 400px;
+    }
+
+    .permanent-badge {
+        background-color: #dc2626;
+        color: white;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 10px;
+        font-weight: 700;
+        margin-left: 8px;
+        display: inline-block;
+        text-transform: uppercase;
+        letter-spacing: 0.2px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 100px 32px;
+        color: var(--text-gray);
+    }
+
+    .empty-state p {
+        font-size: 16px;
+        margin: 0;
+    }
+</style>
+
+<div class="audit-header">
+    <div>
+        <h2>📋 Audit Logs</h2>
+        <p>System Activity & User Actions</p>
+    </div>
+    <a href="{{ url_for('dashboard.home') }}" class="back-btn">← Dashboard</a>
+</div>
+
+{% if logs %}
+<div class="section-card">
+    <div style="overflow-x: auto">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Date & Time</th>
+                    <th>Officer</th>
+                    <th>Action</th>
+                    <th>Complaint ID</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>
+                        {{ log.action_at.strftime('%d %b %Y %H:%M') if
+                        log.action_at else '—' }}
+                    </td>
+                    <td class="officer-name">{{ log.username }}</td>
+                    <td>
+                        <span
+                            class="action-badge {% if 'login' in log.action %}action-login {% elif 'logout' in log.action %}action-logout {% elif 'fir' in log.action %}action-fir {% elif 'classified' in log.action %}action-classified {% elif 'assigned' in log.action %}action-assigned {% else %}action-default{% endif %}"
+                        >
+                            {{ log.action | replace('_',' ') | upper }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if log.complaint_id %}
+                        <a
+                            href="{{ url_for('complaint.view_complaint', cmp_id=log.complaint_id) }}"
+                            class="complaint-link"
+                        >
+                            {{ log.complaint_id }}
+                        </a>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td class="details-cell">
+                        {{ log.details or '—' }} {% if log.get('permanent') %}
+                        <span class="permanent-badge">PERMANENT</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="section-card">
+    <div class="empty-state">
+        <p>No audit logs yet.</p>
+    </div>
+</div>
+{% endif %} {% endblock %}

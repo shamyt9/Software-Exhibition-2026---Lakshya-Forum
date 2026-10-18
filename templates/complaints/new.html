@@ -1,0 +1,227 @@
+{% extends "base.html" %} {% block content %}
+
+<div style="max-width: 780px; margin: 0 auto">
+    <h2 style="color: #111827; margin-bottom: 6px">
+        Register New Complaint
+    </h2>
+    <p style="color: #6B7280; margin-bottom: 24px">
+        Fill all details carefully. Fields marked * are required.
+    </p>
+
+    <form method="POST" action="{{ url_for('complaint.new_complaint') }}">
+        <div class="form-section">
+            <h3>Complainant Details</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Full Name *</label>
+                    <input
+                        type="text"
+                        name="complainant_name"
+                        required
+                        placeholder="e.g. Ramesh Kumar"
+                    />
+                </div>
+                <div class="form-group">
+                    <label>Mobile Number *</label>
+                    <input
+                        type="text"
+                        name="mobile"
+                        required
+                        placeholder="10-digit mobile"
+                    />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>District *</label>
+                    <select name="district" required>
+                        <option value="">-- Select District --</option>
+                        <option>Agra</option>
+                        <option>Aligarh</option>
+                        <option>Ambedkar Nagar</option>
+                        <option>Amethi</option>
+                        <option>Amroha</option>
+                        <option>Auraiya</option>
+                        <option>Ayodhya</option>
+                        <option>Azamgarh</option>
+                        <option>Baghpat</option>
+                        <option>Bahraich</option>
+                        <option>Ballia</option>
+                        <option>Balrampur</option>
+                        <option>Banda</option>
+                        <option>Barabanki</option>
+                        <option>Bareilly</option>
+                        <option>Basti</option>
+                        <option>Bhadohi</option>
+                        <option>Bijnor</option>
+                        <option>Budaun</option>
+                        <option>Bulandshahr</option>
+                        <option>Chandauli</option>
+                        <option>Chitrakoot</option>
+                        <option>Deoria</option>
+                        <option>Etah</option>
+                        <option>Etawah</option>
+                        <option>Farrukhabad</option>
+                        <option>Fatehpur</option>
+                        <option>Firozabad</option>
+                        <option>Gautam Buddha Nagar</option>
+                        <option>Ghaziabad</option>
+                        <option>Ghazipur</option>
+                        <option>Gonda</option>
+                        <option>Gorakhpur</option>
+                        <option>Hamirpur</option>
+                        <option>Hapur</option>
+                        <option>Hardoi</option>
+                        <option>Hathras</option>
+                        <option>Jalaun</option>
+                        <option>Jaunpur</option>
+                        <option>Jhansi</option>
+                        <option>Kannauj</option>
+                        <option>Kanpur Dehat</option>
+                        <option>Kanpur Nagar</option>
+                        <option>Kasganj</option>
+                        <option>Kaushambi</option>
+                        <option>Kushinagar</option>
+                        <option>Lakhimpur Kheri</option>
+                        <option>Lalitpur</option>
+                        <option>Lucknow</option>
+                        <option>Maharajganj</option>
+                        <option>Mahoba</option>
+                        <option>Mainpuri</option>
+                        <option>Mathura</option>
+                        <option>Mau</option>
+                        <option>Meerut</option>
+                        <option>Mirzapur</option>
+                        <option>Moradabad</option>
+                        <option>Muzaffarnagar</option>
+                        <option>Pilibhit</option>
+                        <option>Pratapgarh</option>
+                        <option>Prayagraj</option>
+                        <option>Raebareli</option>
+                        <option>Rampur</option>
+                        <option>Saharanpur</option>
+                        <option>Sambhal</option>
+                        <option>Sant Kabir Nagar</option>
+                        <option>Shahjahanpur</option>
+                        <option>Shamli</option>
+                        <option>Shravasti</option>
+                        <option>Siddharthnagar</option>
+                        <option>Sitapur</option>
+                        <option>Sonbhadra</option>
+                        <option>Sultanpur</option>
+                        <option>Unnao</option>
+                        <option>Varanasi</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Source *</label>
+                    <select name="source" required>
+                        <option value="walk-in">Walk-in</option>
+                        <option value="NCRP">NCRP Portal</option>
+                        <option value="1930">Dial 1930</option>
+                        <option value="PS_ENTRY">PS Entry</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3>Complaint Details</h3>
+
+            <div class="form-group">
+                <label>Complaint Description *</label>
+                <textarea
+                    name="complaint_text"
+                    required
+                    rows="6"
+                    placeholder="Describe the incident in detail — what happened, when, how you were contacted, what you did..."
+                ></textarea>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3>Financial / Transaction Details</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Amount Involved (Rs.)</label>
+                    <input
+                        type="number"
+                        name="amount_involved"
+                        placeholder="e.g. 45000"
+                        min="0"
+                    />
+                </div>
+                <div class="form-group">
+                    <label>Transaction ID / UTR</label>
+                    <input
+                        type="text"
+                        name="txn_id"
+                        placeholder="e.g. TXN123456789"
+                    />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Bank Name</label>
+                    <input
+                        type="text"
+                        name="bank_name"
+                        placeholder="e.g. SBI, HDFC"
+                    />
+                </div>
+                <div class="form-group">
+                    <label>Account (masked)</label>
+                    <input
+                        type="text"
+                        name="account_masked"
+                        placeholder="e.g. XXXX1234"
+                    />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Payment Channel</label>
+                    <select name="channel">
+                        <option value="UPI">UPI</option>
+                        <option value="NEFT">NEFT</option>
+                        <option value="IMPS">IMPS</option>
+                        <option value="card">Debit/Credit Card</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Beneficiary Details</label>
+                    <input
+                        type="text"
+                        name="beneficiary"
+                        placeholder="Name or UPI ID of fraudster"
+                    />
+                </div>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 10px">
+            <button
+                type="submit"
+                class="btn-primary"
+                style="width: auto; padding: 12px 32px"
+            >
+                Register Complaint
+            </button>
+            <a
+                href="{{ url_for('complaint.list_complaints') }}"
+                style="
+                    padding: 12px 24px;
+                    border: 1px solid #D1D5DB;
+                    border-radius: 6px;
+                    text-decoration: none;
+                    color: #374151;
+                "
+            >
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

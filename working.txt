@@ -1,0 +1,574 @@
+===================================================================================
+        CYBERCRIME COMPLAINT CATEGORIZATION MODEL - HOW IT WORKS
+===================================================================================
+
+PROJECT: Cybercrime Detection and Classification System
+PURPOSE: Automatically categorize complaint texts into fraud types
+MODEL TYPE: Text Classification using Machine Learning
+
+===================================================================================
+1. OVERVIEW
+===================================================================================
+
+The model uses a two-stage pipeline:
+  STAGE 1: Text Vectorization (TF-IDF)
+  STAGE 2: Logistic Regression Classification
+
+The system learns patterns from historical complaint data and categorizes new 
+complaints into predefined fraud categories (e.g., financial_fraud, phishing, etc.)
+
+===================================================================================
+1.5. FRAUD CATEGORIES IN THIS PROJECT
+===================================================================================
+
+This cybercrime detection system categorizes complaints into 5 major fraud types:
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                    FRAUD CATEGORY BREAKDOWN                                  │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+1. FINANCIAL FRAUD (50-60% of cases)
+   ──────────────────────────────────────────────────────────────────────────
+   Definition: Unauthorized financial transactions, fake investment schemes,
+               credit card fraud, online payment scams
+   
+   Sub-types:
+   ✓ Unauthorized Card Transactions
+     • Debit/Credit card used without consent
+     • Example: "226308 rupees transaction hua jo maine kiya hi nahi"
+   
+   ✓ Fake Investment Schemes  
+     • Promised 50% guaranteed returns
+     • Money sent but no returns received
+     • Contact numbers become "dead"
+     • Example: "transferred 429114 rupees to investment scheme, no return mila"
+   
+   ✓ Phishing & Fake SMS Attacks
+     • Fraudsters impersonate banks (SBI, ICICI, HDFC, etc.)
+     • Fake SMS/Email asking to verify account details
+     • Users click malicious links and lose money
+     • Example: "Got fake SMS from SBI, clicked link, 244357 rupees transferred"
+   
+   ✓ Fake Online Shopping
+     • Payment made for product that never arrives
+     • Seller disappears after payment
+     • Example: "paid 410551 rupees for purchase, product never delivered"
+   
+   ✓ Account Hacking
+     • Bank account remotely accessed
+     • Unauthorized transfers without OTP authentication
+     • Example: "179818 rupees transferred without knowledge, OTP not generated"
+   
+   ✓ Unauthorized Subscription Charges
+     • Recurring charges on credit/debit card
+     • User never subscribed to service
+     • Example: "242070 rupees subscription charge, maine kabhi subscribe nahi kiya"
+   
+   ✓ WhatsApp Impersonation
+     • Fraudster impersonates trusted contact
+     • Requests urgent money transfer
+     • Example: "Fake friend on WhatsApp asked 480449 rupees urgently"
+   
+   Keywords Model Looks For:
+   → "transfer", "fraud", "unauthorized", "credit card", "payment", "hacked",
+     "rupees", "transaction", "fake", "amount", "money", "invest", "scheme",
+     "bank", "account", "payment", "stolen"
+
+───────────────────────────────────────────────────────────────────────────────
+
+2. IDENTITY THEFT (10-15% of cases)
+   ──────────────────────────────────────────────────────────────────────────
+   Definition: Unauthorized use of personal/official documents and credentials
+               for illegal activities in victim's name
+   
+   Sub-types:
+   ✓ SIM Card Duplication
+     • Duplicate SIM created in victim's name
+     • Criminals access OTP and accounts
+     • Example: "Mere SIM duplicate ho gaya, transactions in my name"
+   
+   ✓ Email & Phone Hacking
+     • Email/phone compromised with sensitive documents linked
+     • Anyone can now access victim's identity
+     • Example: "Email and phone hacked, important documents linked"
+   
+   ✓ Document Theft
+     • Passport, driving license, school marksheet stolen/leaked
+     • Can be used for fake loans and illegal documents
+     • Example: "Passport details found on dark web being sold"
+   
+   ✓ Aadhaar/PAN Misuse
+     • Unique identity numbers misused for accounts/loans
+     • Victim discovers via bank calls
+     • Example: "Someone used my Aadhaar for illegal activities"
+   
+   ✓ KYC Data Breach
+     • Know Your Customer details leaked from banking apps
+     • Personal information exposed on darknet
+     • Example: "KYC details leaked from banking app on darknet"
+   
+   ✓ School/Medical Records Leaked
+     • Educational certificates, medical prescriptions stolen
+     • Can be used for fake admissions or identity fraud
+     • Example: "School marksheet and birth certificate stolen online"
+   
+   Keywords Model Looks For:
+   → "identity", "theft", "documents", "leaked", "hack", "passport", "aadhaar",
+     "pan", "kyc", "credentials", "account", "simcard", "duplicate", "misuse",
+     "personal", "breach"
+
+───────────────────────────────────────────────────────────────────────────────
+
+3. DIGITAL ARREST (10-15% of cases)
+   ──────────────────────────────────────────────────────────────────────────
+   Definition: Fake law enforcement threats to extort money by claiming
+               victim is involved in illegal activity
+   
+   Sub-types:
+   ✓ Fake CBI/Police Officer Calls
+     • Impersonates CBI, narcotics officer, crime branch
+     • Claims victim involved in illegal activities (money laundering, drugs)
+     • Demands payment or threatens arrest
+     • Example: "Fake CBI officer said my PAN involved in money laundering"
+   
+   ✓ Fake Summons/Court Orders
+     • Fraudster sends fake court documents
+     • Claims arrest warrant or case pending
+     • Demands bail/fine payment
+     • Example: "Got fake court summons, bail amount 1373147 rupees demanded"
+   
+   ✓ Cybercrime Threats
+     • Claims victim involved in online piracy, cyber terrorism
+     • Threatens family arrest
+     • Example: "Fake police ID said I committed online piracy crimes"
+   
+   ✓ GST/Tax Evasion Claims
+     • Scammer impersonates GST/Income Tax official
+     • Claims illegal goods linked to victim
+     • Demands immediate payment
+     • Example: "Call about GST registration, illegal goods claim, fine demanded"
+   
+   ✓ Blackmail with Fake Evidence
+     • Claims to have compromising videos/photos
+     • Threatens to send to contacts unless payment made
+     • Example: "Blackmail email saying they have desktop access, compromising videos"
+   
+   Keywords Model Looks For:
+   → "arrest", "police", "officer", "cbi", "court", "summons", "jail",
+     "crime", "summons", "bail", "fine", "illegal", "case", "threat",
+     "threatened", "warrant", "charges", "guilty", "arrested"
+
+───────────────────────────────────────────────────────────────────────────────
+
+4. DARKNET (5-10% of cases)
+   ──────────────────────────────────────────────────────────────────────────
+   Definition: Personal/financial information leaked and sold on darknet
+               forums by criminal groups
+   
+   Sub-types:
+   ✓ Data Being Sold on Darknet
+     • Credit card details, bank credentials sold
+     • Medical/health records available for purchase
+     • Example: "My medical records and prescriptions leaked on darknet"
+   
+   ✓ Personal Profile Trading
+     • Full family profile with addresses sold
+     • Criminal groups advertising victim's information
+     • Example: "My family profile with addresses sold on darknet forum"
+   
+   ✓ Identity Documents Trading
+     • Passport, Aadhaar, birth certificates sold
+     • Can be used for fake documents/loans
+     • Example: "Passport details being sold on dark web"
+     
+   ✓ Financial Information Trafficking
+     • Credit card and bank details on sale
+     • Someone trafficking victim's financial information
+     • Example: "My credit card details sold on dark web for 312277 rupees"
+   
+   ✓ Extortion from Darknet
+     • Criminal threatens to release personal data
+     • Demands payment not to publish
+     • Example: "Someone emailed threatening to release personal photos unless paid"
+   
+   Keywords Model Looks For:
+   → "darknet", "dark web", "leak", "sold", "trafficking", "hacker",
+     "credentials", "data", "breach", "exposed", "criminal group",
+     "compromising", "ransomware", "extortion", "payment"
+
+───────────────────────────────────────────────────────────────────────────────
+
+5. FAKE NEWS (5-10% of cases)
+   ──────────────────────────────────────────────────────────────────────────
+   Definition: False or misleading information spread rapidly causing panic,
+               economic damage, or public health impact
+   
+   Sub-types:
+   ✓ Political Misinformation
+     • False claims about political parties/leaders
+     • Completely fabricated news spreading rapidly
+     • Example: "Fake news about political party doing something illegal"
+   
+   ✓ Public Health Misinformation
+     • False vaccine safety claims
+     • Disease outbreak false information
+     • Example: "Forwarded message claiming vaccine causes infertility"
+   
+   ✓ Economic Misinformation
+     • False bank closure announcements
+     • False restrictions/bans on brands
+     • Example: "Fake news that major bank closing all accounts, panic withdrawals"
+   
+   ✓ Celebrity Death Hoaxes
+     • Morphed/doctored images claiming famous person died
+     • Causes emotional distress
+     • Example: "Doctored image circulating that someone famous died"
+   
+   ✓ Government Restrictions
+     • False claims about government actions
+     • Creates unnecessary public fear
+     • Example: "False government arrest rumors creating panic in society"
+   
+   ✓ Disaster Misinformation
+     • False information about natural disasters
+     • Makes people take wrong preventive decisions
+     • Example: "False disaster news spreading faster than real information"
+   
+   Keywords Model Looks For:
+   → "fake", "news", "hoax", "rumor", "false", "misinformation", "viral",
+     "spreading", "misleading", "claim", "fabricated", "morphed", "image",
+     "panic", "social media", "whatsapp", "forwarded", "alert", "warning"
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                  STATISTICAL DISTRIBUTION OF FRAUD TYPES                     │
+│                      IN CYBERCRIME PROJECT                                   │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+Based on analysis of ai/training_data.csv:
+
+  FINANCIAL_FRAUD ████████████████████████████████████░ ~60%  (Most Common)
+  FAKE_NEWS       ████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ~10%
+  DIGITAL_ARREST  ████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ~10%
+  IDENTITY_THEFT  ███░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ~8%
+  DARKNET         ███░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ~8%
+  (PHISHING)      Subset of Financial Fraud
+  (SCAM)          Subset of Financial Fraud
+
+Common Statuses:
+  • FREEZE_REQUESTED - Victim wants money frozen
+  • INVESTIGATION - Under police investigation
+  • UNTRACED - Cannot be traced
+  • RESOLVED - Case resolved
+  • SUBMITTED - Complaint submitted
+
+===================================================================================
+2. COMPLETE WORKFLOW BREAKDOWN
+===================================================================================
+
+STEP 1: DATA LOADING
+─────────────────────────────────
+  • Source: ai/training_data.csv
+  • Contains: complaint_text (actual complaint) and category (fraud type)
+  • Data Cleaning: Fixes typo "finanzial_fraud" → "financial_fraud"
+  • Filtering: Removes incomplete records (where text or category is missing)
+  • Result: Clean dataset with complete text-category pairs
+
+STEP 2: TEXT PREPROCESSING
+─────────────────────────────────
+  Why: Raw text contains noise that confuses the model
+  
+  Process (applied to each complaint):
+    1. Convert to lowercase
+       Example: "Credit Card FRAUD" → "credit card fraud"
+    
+    2. Remove special characters (keep only letters, numbers, spaces)
+       Example: "Fraud @ Bank!" → "fraud at bank"
+    
+    3. Clean whitespace (remove extra spaces)
+       Example: "fraud  card  theft" → "fraud card theft"
+  
+  Result: Standardized, clean text ready for analysis
+  
+  Example Transformation:
+    Original: "I lost $5,000 in an online scam!!!"
+    Cleaned:  "i lost 5000 in an online scam"
+
+STEP 3: FEATURE EXTRACTION (TF-IDF VECTORIZER)
+─────────────────────────────────────────────────
+
+  What is TF-IDF?
+  ──────────────
+  TF-IDF converts text into numerical vectors that machines can understand.
+  
+  TF = Term Frequency (how often a word appears in a document)
+  IDF = Inverse Document Frequency (how rare/unique a word is across all documents)
+  
+  Formula: TF-IDF = TF × IDF
+  
+  Example:
+    - Word "fraud" appears in 80% of documents → LOW IDF (common, less important)
+    - Word "ransomware" appears in 5% of documents → HIGH IDF (rare, very important)
+  
+  Vectorizer Configuration:
+  ────────────────────────
+  • max_features=5000
+    → Consider top 5000 most important words
+    → Reduces noise and computational load
+  
+  • ngram_range=(1, 2)
+    → Single words AND two-word combinations
+    → Examples: "credit" (unigram), "credit card" (bigram)
+    → Captures context (e.g., "credit card fraud" vs just "fraud")
+  
+  • min_df=2
+    → Word must appear in at least 2 documents
+    → Removes one-off typos and noise
+  
+  • sublinear_tf=True
+    → Dampens impact of very frequent words
+    → Prevents "the" and "a" from dominating
+  
+  Output: Each text becomes a vector of 5000 numerical values
+          Example: [0.15, 0.32, 0.0, 0.48, ..., 0.12]
+                    ↓     ↓     ↓    ↓      ↓    ↓
+                   word1 word2 word3 word4 ...word5000
+
+STEP 4: TRAIN/TEST SPLIT
+─────────────────────────────────
+  
+  Why: Test the model on data it never saw during training
+  
+  Configuration:
+  • Training Set: 80% of data (model learns from this)
+  • Test Set: 20% of data (model is evaluated on this)
+  • Random Seed: 42 (ensures reproducibility)
+  • Stratified: Maintains same category distribution in both sets
+  
+  Example:
+    If original has 50% financial_fraud, 30% phishing, 20% hacking
+    Both train and test will have same percentages
+
+STEP 5: MODEL TRAINING (LOGISTIC REGRESSION)
+───────────────────────────────────────────────
+
+  What is Logistic Regression?
+  ────────────────────────────
+  Despite "Regression" in name, it's a classification algorithm.
+  It learns weights for each feature (word/bigram) that indicate:
+    • Positive weight = word suggests this category
+    • Negative weight = word suggests other categories
+    • Zero weight = word doesn't matter
+  
+  Example Model Weights:
+    "credit card fraud" → +2.1 (strongly indicates financial fraud)
+    "phishing" → -0.8 (suggests NOT financial fraud)
+    "the" → 0.0 (ignored, not useful)
+  
+  Configuration:
+  • max_iter=1000
+    → Maximum 1000 iterations to find optimal weights
+    → Usually converges much faster
+  
+  • C=1.0
+    → Regularization strength
+    → Prevents overfitting (memorizing training data)
+  
+  • class_weight="balanced"
+    → Automatically adjusts for imbalanced categories
+    → If one fraud type is rare, model pays more attention to it
+    → Prevents bias toward common categories
+  
+  Training Process:
+  1. Start with random weights
+  2. Make predictions on training data
+  3. Calculate how wrong predictions are
+  4. Adjust weights to reduce errors
+  5. Repeat until convergence
+
+STEP 6: MODEL EVALUATION
+───────────────────────────────────
+  
+  Metrics Calculated:
+  • Precision: Of predicted frauds, how many were correct?
+  • Recall: Of actual frauds, how many did we catch?
+  • F1-Score: Balance between precision and recall
+  • Support: Number of test samples per category
+  
+  Example Results:
+    financial_fraud: Precision=0.92, Recall=0.88, F1=0.90
+    phishing:        Precision=0.85, Recall=0.90, F1=0.87
+    hacking:         Precision=0.91, Recall=0.86, F1=0.88
+
+STEP 7: MODEL SAVING
+───────────────────────────────────
+  
+  Two files saved to ai/model/:
+  
+  1. vectorizer.pkl
+     → Contains learned vocabulary of 5000 words/bigrams
+     → Used to convert new complaints to vectors
+     → Same transformation applied to training data
+  
+  2. classifier.pkl
+     → Contains trained Logistic Regression model
+     → Contains learned weights for each feature
+     → Makes actual predictions
+  
+  These files are loaded when application needs to classify new complaints
+
+===================================================================================
+3. CATEGORIZATION BASIS & HOW PREDICTIONS WORK
+===================================================================================
+
+WHAT DETERMINES THE CATEGORY?
+─────────────────────────────
+
+When a new complaint comes in:
+
+  STEP A: Vectorization
+  ─────────────────────
+  New complaint → Cleaned → Converted to 5000-dimensional vector
+  using same vectorizer that processed training data
+  
+  Example:
+    New complaint: "My PayPal account was hacked! $2000 stolen."
+    Cleaned: "my paypal account was hacked 2000 stolen"
+    Vector: [0.12, 0.45, 0.0, 0.38, ...] (5000 values)
+
+  STEP B: Score Calculation
+  ──────────────────────────
+  Model calculates probability for each category:
+  
+  Score = learned_weights × complaint_vector + bias
+  
+  Using sigmoid function to convert to probability [0,1]:
+  Probability = 1 / (1 + e^(-score))
+  
+  Example Output:
+    financial_fraud: 0.87 (87% confidence)
+    phishing:        0.08 (8% confidence)
+    hacking:         0.05 (5% confidence)
+
+  STEP C: Category Assignment
+  ────────────────────────────
+  System picks the category with highest probability:
+  
+  PREDICTION = max(financial_fraud, phishing, hacking, ...)
+             = financial_fraud (87% > 8% and 5%)
+
+BASIS FOR CATEGORIZATION
+─────────────────────────
+
+Categories are determined by:
+
+1. WORD PRESENCE & PATTERNS
+   Example patterns:
+   • "credit card" + "fraud" → likely financial_fraud
+   • "email" + "password" + "verify" → likely phishing
+   • "system" + "malware" + "access" → likely hacking
+
+2. WORD FREQUENCY
+   How often important words appear affects confidence
+
+3. WORD CONTEXT (Bigrams)
+   Two-word combinations matter more than isolated words
+   "social engineering" ≠ "social" + "engineering"
+
+4. LEARNED IMPORTANCE (TF-IDF)
+   • Common words like "and", "the" → low impact
+   • Rare, specific words like "ransomware" → high impact
+
+5. STATISTICAL PATTERNS
+   From thousands of training examples:
+   • What word combinations typically appear in each fraud type
+   • Historical patterns learned by Logistic Regression weights
+
+===================================================================================
+4. EXAMPLE WALKTHROUGH
+===================================================================================
+
+COMPLAINT TEXT:
+"I received an email asking me to verify my bank details. The link looked 
+suspicious, so I checked the sender. It wasn't from my bank!"
+
+PROCESSING:
+
+1. Preprocessing:
+   → "i received an email asking me to verify my bank details the link looked 
+      suspicious so i checked the sender it wasnt from my bank"
+
+2. Vectorization:
+   → Extracts words and bigrams: ["email", "verify bank", "bank details", 
+     "suspicious", "sender", ...]
+   → Creates 5000D vector with TF-IDF weights
+
+3. Scoring:
+   • financial_fraud: 0.15 (low - no money mentioned)
+   • phishing: 0.82 (high - email, verify, suspicious, bank)
+   • hacking: 0.03 (low - no system access terms)
+
+4. Prediction:
+   CATEGORY = phishing (highest probability at 82%)
+
+===================================================================================
+5. KEY ADVANTAGES OF THIS APPROACH
+===================================================================================
+
+✓ Scalable: Works with large volumes of complaints
+✓ Fast: Vectorization and prediction are computationally efficient
+✓ Interpretable: Can see which words influence each category
+✓ Balanced: Handles imbalanced fraud categories
+✓ Reusable: Model saves time by automating manual categorization
+✓ Trainable: Can improve with more examples
+
+===================================================================================
+6. LIMITATIONS & CONSIDERATIONS
+===================================================================================
+
+⚠ Language: Only trained on English text
+⚠ Domain Knowledge: Works best with training data similar to production data
+⚠ Class Imbalance: Performs better on common fraud types
+⚠ Context Loss: Single complaint lacks full case context
+⚠ Misspellings: Aggressive cleaning might remove intentional variations
+
+===================================================================================
+7. FILES INVOLVED
+===================================================================================
+
+INPUT FILES:
+  • ai/training_data.csv
+    Structure: [complaint_text, category]
+    Used for: Learning model patterns
+
+OUTPUT FILES:
+  • ai/model/vectorizer.pkl
+    Purpose: Transforms new text to numerical format
+  
+  • ai/model/classifier.pkl
+    Purpose: Makes probability predictions
+
+CODE FILES:
+  • ai/train_model.py
+    Purpose: Trains model (run once to build)
+  
+  • ai/predictor.py
+    Purpose: Uses saved models for predictions (called by web app)
+
+===================================================================================
+8. USAGE IN APPLICATION
+===================================================================================
+
+When user submits complaint through web interface:
+
+1. Web form sends complaint text to server
+2. Server loads predictor.py
+3. Predictor loads ai/model/vectorizer.pkl and ai/model/classifier.pkl
+4. Complaint is vectorized using saved vectorizer
+5. Classifier predicts category with confidence score
+6. Category is displayed to user
+7. User can manually override if needed
+8. Complaint is stored with predicted/confirmed category
+
+===================================================================================
+Model Type: TF-IDF + Logistic Regression
+Algorithm: Supervised Learning (Text Classification)

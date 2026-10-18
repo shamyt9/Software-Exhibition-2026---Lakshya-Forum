@@ -1,0 +1,374 @@
+{% extends "base.html" %} {% block content %}
+
+<!-- Header -->
+<div
+    style="
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 28px;
+    "
+>
+    <div>
+        <h2 style="color: #111827; font-size: 26px">
+            Command Dashboard
+        </h2>
+        <p style="color: #6B7280; margin-top: 4px">
+            Welcome, <strong>{{ user.full_name }}</strong> &nbsp;|&nbsp; Role:
+            <strong>{{ user.role | upper }}</strong> &nbsp;|&nbsp; District:
+            <strong>{{ user.district }}</strong>
+        </p>
+    </div>
+    {% if user.role in ['admin', 'officer', 'analyst'] %}
+    <a
+        href="{{ url_for('complaint.new_complaint') }}"
+        class="btn-primary"
+        style="width: auto; padding: 10px 24px"
+        >+ New Complaint</a
+    >
+    {% endif %}
+</div>
+
+<!-- KPI Cards -->
+<div class="kpi-grid">
+    <div class="kpi-card kpi-blue">
+        <div class="kpi-number">{{ total }}</div>
+        <div class="kpi-label">Total Complaints</div>
+    </div>
+    <div class="kpi-card kpi-orange">
+        <div class="kpi-number">{{ submitted }}</div>
+        <div class="kpi-label">Pending Review</div>
+    </div>
+    <div class="kpi-card kpi-green">
+        <div class="kpi-number">{{ classified }}</div>
+        <div class="kpi-label">AI Classified</div>
+    </div>
+    <div class="kpi-card kpi-red">
+        <div class="kpi-number">{{ high_risk }}</div>
+        <div class="kpi-label">High Risk Cases</div>
+    </div>
+</div>
+
+<!-- Quick Action Cards -->
+<div class="card-grid" style="margin-bottom: 24px">
+    {% if user.role in ['admin', 'supervisor'] %}
+    <div class="card">
+        <h3>📊 Reports</h3>
+        <p>District-wise and category-wise analytics</p>
+        <a href="{{ url_for('reports.reports') }}" class="btn-primary">Open</a>
+    </div>
+    {% endif %} {% if user.role in ['admin', 'supervisor'] %}
+    <div class="card">
+        <h3>📋 Audit Logs</h3>
+        <p>View all system actions and officer activity</p>
+        <a href="{{ url_for('reports.audit_logs') }}" class="btn-primary"
+            >Open</a
+        >
+    </div>
+    {% endif %} {% if user.role == 'admin' %}
+    <div class="card">
+        <h3>👥 User Management</h3>
+        <p>Add officers, assign districts and roles</p>
+        <a href="{{ url_for('dashboard.admin_panel') }}" class="btn-primary"
+            >Open</a
+        >
+    </div>
+    {% endif %}
+
+    <div class="card">
+        <h3>📁 My Cases</h3>
+        <p>View your assigned complaints</p>
+        <a href="{{ url_for('assignment.my_cases') }}" class="btn-primary"
+            >Open</a
+        >
+    </div>
+</div>
+
+<!-- Charts row -->
+<div class="charts-row">
+    <!-- Category chart -->
+    <div class="chart-card">
+        <h3>Complaints by Category</h3>
+        <div style="height: 300px; position: relative">
+            <canvas id="dashCategoryChart"></canvas>
+        </div>
+    </div>
+
+    <!-- District chart -->
+    <div class="chart-card">
+        <h3>Top Districts</h3>
+        <div style="height: 300px; position: relative">
+            <canvas id="dashDistrictChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- Category Chart (Doughnut) ---
+        const catData = {{ cat_data | tojson | safe }};
+        const catLabels = catData.filter(d => d._id).map(d => d._id.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()));
+        const catCounts = catData.filter(d => d._id).map(d => d.count);
+
+        new Chart(document.getElementById('dashCategoryChart'), {
+            type: 'doughnut',
+            data: {
+                labels: catLabels,
+                datasets: [{
+                    data: catCounts,
+                    backgroundColor: [
+                        '#3B82F6', '#059669', '#D97706', '#DC2626', '#1E3A5F', '#6B7280', '#10B981', '#F59E0B'
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: { size: 11, weight: '600' }
+                        }
+                    }
+                },
+                cutout: '65%'
+            }
+        });
+
+        // --- District Chart (Bar) ---
+        const distData = {{ dist_data | tojson | safe }};
+        const distLabels = distData.filter(d => d._id).map(d => d._id);
+        const distCounts = distData.filter(d => d._id).map(d => d.count);
+
+        new Chart(document.getElementById('dashDistrictChart'), {
+            type: 'bar',
+            data: {
+                labels: distLabels,
+                datasets: [{
+                    label: 'Complaints',
+                    data: distCounts,
+                    backgroundColor: '#DC2626',
+                    borderRadius: 6,
+                    maxBarThickness: 40
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { display: false },
+                        ticks: { font: { weight: '600' } }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { weight: '600' } }
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+<!-- High Risk Alerts -->
+{% if high_risk_complaints %}
+<div class="section-card" style="margin-bottom: 24px">
+    <div
+        style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        "
+    >
+        <h3 style="color: #111827">🔴 High Risk Alerts</h3>
+        <a
+            href="{{ url_for('complaint.list_complaints') }}"
+            style="
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+                padding: 5px 14px;
+                font-size: 12px;
+                font-weight: 500;
+                color: #3b82f6;
+                background: #eff6ff;
+                border: 1px solid #bfdbfe;
+                border-radius: 16px;
+                text-decoration: none;
+                transition: all 0.2s ease;
+                cursor: pointer;
+            "
+            onmouseover="
+                this.style.background = '#3b82f6';
+                this.style.color = 'white';
+                this.style.borderColor = '#3b82f6';
+                this.style.transform = 'translateY(-1px)';
+                this.style.boxShadow = '0 2px 6px rgba(59,130,246,0.3)';
+            "
+            onmouseout="
+                this.style.background = '#eff6ff';
+                this.style.color = '#3b82f6';
+                this.style.borderColor = '#bfdbfe';
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'none';
+            "
+            >View all →</a
+        >
+    </div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Complaint ID</th>
+                <th>Complainant</th>
+                <th>District</th>
+                <th>Category</th>
+                <th>Amount (Rs.)</th>
+                <th>Risk Score</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in high_risk_complaints %}
+            <tr style="background: #FEE2E2">
+                <td><code>{{ c.complaint_id }}</code></td>
+                <td>{{ c.complainant }}</td>
+                <td>{{ c.district }}</td>
+                <td>{{ c.category_label }}</td>
+                <td>{{ "{:,.0f}".format(c.amount) if c.amount else "—" }}</td>
+                <td>
+                    <span
+                        style="
+                            background: #FEE2E2;
+                            color: #DC2626;
+                            padding: 6px 12px;
+                            border-radius: 20px;
+                            font-weight: bold;
+                            font-size: 12px;
+                        "
+                    >
+                        {{ c.risk_score }}
+                    </span>
+                </td>
+                <td>
+                    <a
+                        href="{{ url_for('complaint.view_complaint', cmp_id=c.complaint_id) }}"
+                        class="btn-sm"
+                        >View</a
+                    >
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<!-- Recent Complaints -->
+<div class="section-card">
+    <div
+        style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        "
+    >
+        <h3 style="color: #111827">Recent Complaints</h3>
+        <a
+            href="{{ url_for('complaint.list_complaints') }}"
+            style="
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 13px;
+                font-weight: 500;
+                color: #3b82f6;
+                text-decoration: none;
+                padding: 6px 12px;
+                border-radius: 20px;
+                background: #eff6ff;
+                transition: all 0.2s ease;
+            "
+            onmouseover="
+                this.style.background = '#3b82f6';
+                this.style.color = 'white';
+                this.style.transform = 'translateX(3px)';
+            "
+            onmouseout="
+                this.style.background = '#eff6ff';
+                this.style.color = '#3b82f6';
+                this.style.transform = 'translateX(0)';
+            "
+        >
+            View all →
+        </a>
+    </div>
+    {% if recent %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Complainant</th>
+                <th>District</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in recent %}
+            <tr>
+                <td><code>{{ c.complaint_id }}</code></td>
+                <td>{{ c.complainant_name }}</td>
+                <td>{{ c.district }}</td>
+                <td>
+                    {{ c.crime_type | replace('_',' ') | title if c.crime_type
+                    else "—" }}
+                </td>
+                <td>
+                    <span class="badge badge-{{ c.status }}"
+                        >{{ c.status }}</span
+                    >
+                </td>
+                <td>
+                    <a
+                        href="{{ url_for('complaint.view_complaint', cmp_id=c.complaint_id) }}"
+                        class="btn-sm"
+                        >View</a
+                    >
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div style="text-align: center; padding: 40px; color: #9CA3AF">
+        <p>No complaints yet.</p>
+        <a
+            href="{{ url_for('complaint.new_complaint') }}"
+            class="btn-primary"
+            style="
+                width: auto;
+                padding: 10px 24px;
+                display: inline-block;
+                margin-top: 16px;
+            "
+        >
+            Register First Complaint
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

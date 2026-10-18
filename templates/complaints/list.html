@@ -1,0 +1,185 @@
+{% extends "base.html" %} {% block content %}
+
+<div
+    style="
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    "
+>
+    <h2 style="color: #111827">All Complaints</h2>
+    <a
+        href="{{ url_for('complaint.new_complaint') }}"
+        class="btn-primary"
+        style="width: auto; padding: 10px 24px"
+        >+ New Complaint</a
+    >
+</div>
+
+{% if complaints %}
+<div style="overflow-x: auto">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Complaint ID</th>
+                <th>Complainant</th>
+                <th>District</th>
+                <th>Crime Type</th>
+                <th>Amount (Rs.)</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in complaints %}
+            <tr>
+                <td><code>{{ c.complaint_id }}</code></td>
+                <td>{{ c.complainant_name }}</td>
+                <td>{{ c.district }}</td>
+                <td>{{ c.crime_type | replace('_', ' ') | title }}</td>
+                <td>
+                    {{ "{:,.0f}".format(c.amount_involved) if c.amount_involved
+                    else "—" }}
+                </td>
+                <td>
+                    <span class="badge badge-{{ c.status }}"
+                        >{{ c.status }}</span
+                    >
+                </td>
+                <td>{{ c.submitted_at.strftime('%d %b %Y') }}</td>
+                <td>
+                    <a
+                        href="{{ url_for('complaint.view_complaint', cmp_id=c.complaint_id) }}"
+                        class="btn-sm"
+                        >View</a
+                    >
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+<div
+    style="
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 24px;
+        padding: 16px;
+        background: #F9FAFB;
+        border-radius: 8px;
+    "
+>
+    <div style="color: #6B7280; font-size: 14px">
+        Showing {{ (page - 1) * 10 + 1 }} to {{ [page * 10, total_count] | min
+        }} of {{ total_count }} complaints
+    </div>
+    <div style="display: flex; gap: 12px; align-items: center">
+        {% if has_prev %}
+        <a
+            href="{{ url_for('complaint.list_complaints', page=page-1, status=status_filter, category=category_filter, district=district_filter) }}"
+            class="btn-sm"
+            style="padding: 8px 16px"
+            >← Previous</a
+        >
+        {% else %}
+        <button
+            disabled
+            style="
+                opacity: 0.5;
+                cursor: not-allowed;
+                padding: 8px 16px;
+                background: #F9FAFB;
+                border: 1px solid #D1D5DB;
+                border-radius: 6px;
+                color: #6B7280;
+            "
+        >
+            ← Previous
+        </button>
+        {% endif %}
+
+        <div style="display: flex; gap: 6px">
+            {% for p in range(max(1, page - 2), min(total_pages + 1, page + 3))
+            %} {% if p == page %}
+            <button
+                style="
+                    width: 36px;
+                    height: 36px;
+                    background: #3B82F6;
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    cursor: default;
+                    font-weight: 500;
+                "
+            >
+                {{ p }}
+            </button>
+            {% else %}
+            <a
+                href="{{ url_for('complaint.list_complaints', page=p, status=status_filter, category=category_filter, district=district_filter) }}"
+                style="
+                    width: 36px;
+                    height: 36px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: #FFFFFF;
+                    color: #111827;
+                    border: 1px solid #D1D5DB;
+                    border-radius: 6px;
+                    text-decoration: none;
+                    transition: all 0.2s;
+                "
+                >{{ p }}</a
+            >
+            {% endif %} {% endfor %}
+        </div>
+
+        {% if has_next %}
+        <a
+            href="{{ url_for('complaint.list_complaints', page=page+1, status=status_filter, category=category_filter, district=district_filter) }}"
+            class="btn-sm"
+            style="padding: 8px 16px"
+            >Next →</a
+        >
+        {% else %}
+        <button
+            disabled
+            style="
+                opacity: 0.5;
+                cursor: not-allowed;
+                padding: 8px 16px;
+                background: #F9FAFB;
+                border: 1px solid #D1D5DB;
+                border-radius: 6px;
+                color: #6B7280;
+            "
+        >
+            Next →
+        </button>
+        {% endif %}
+    </div>
+</div>
+{% else %}
+<div style="text-align: center; padding: 60px; color: #9CA3AF">
+    <p>No complaints found.</p>
+    <a
+        href="{{ url_for('complaint.new_complaint') }}"
+        class="btn-primary"
+        style="
+            width: auto;
+            padding: 10px 24px;
+            margin-top: 16px;
+            display: inline-block;
+        "
+    >
+        Register First Complaint
+    </a>
+</div>
+{% endif %} {% endblock %}

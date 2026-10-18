@@ -1,0 +1,237 @@
+{% extends "base.html" %} {% block content %}
+
+<div
+    style="
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 28px;
+    "
+>
+    <div>
+        <h2 style="color: var(--text-primary)">User Management</h2>
+        <p style="color: #666; margin-top: 4px">
+            Manage all officers, analysts and supervisors
+        </p>
+    </div>
+    <a
+        href="{{ url_for('dashboard.add_user') }}"
+        class="btn-primary"
+        style="width: auto; padding: 10px 24px"
+        >+ Add New User</a
+    >
+</div>
+
+<!-- Stats row -->
+<div
+    style="
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 28px;
+    "
+>
+    {% set roles = ['admin','officer','supervisor','analyst'] %} {% set colors =
+    ['#3B82F6','#059669','#D97706','#DC2626'] %} {% for i in range(4) %}
+    <div
+        style="background:#FFFFFF; padding:16px; border-radius:12px;
+                box-shadow:0 1px 3px rgba(0,0,0,0.1); text-align:center;
+                border-top:4px solid {{ colors[i] }}; border: 1px solid #E5E7EB;"
+    >
+        <div style="font-size:28px; font-weight:bold; color:{{ colors[i] }};">
+            {{ users | selectattr('role','equalto',roles[i]) | list | length }}
+        </div>
+        <div style="font-size: 13px; color: #6B7280; margin-top: 4px">
+            {{ roles[i] | title }}s
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Users table -->
+<div class="section-card">
+    <h3
+        style="
+            color: #3B82F6;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #E5E7EB;
+        "
+    >
+        All Users ({{ users | length }})
+    </h3>
+    <div style="overflow-x: auto">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Full Name</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>District</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td><strong>{{ u.full_name }}</strong></td>
+                    <td><code>{{ u.username }}</code></td>
+                    <td style="font-size: 13px">{{ u.email }}</td>
+                    <td>
+                        <span
+                            style="padding:6px 12px; border-radius:20px; font-size:12px; font-weight:bold;
+                    {% if u.role == 'admin' %}background:#DBEAFE;color:#1D4ED8;
+                    {% elif u.role == 'officer' %}background:#D1FAE5;color:#047857;
+                    {% elif u.role == 'supervisor' %}background:#FEF3C7;color:#D97706;
+                    {% else %}background:#E5E7EB;color:#374151;{% endif %}"
+                        >
+                            {{ u.role | upper }}
+                        </span>
+                    </td>
+                    <td>{{ u.district }}</td>
+                    <td>
+                        {% if u.get('is_active', true) %}
+                        <span
+                            style="color: #059669; font-weight: bold"
+                            >● Active</span
+                        >
+                        {% else %}
+                        <span style="color: #DC2626; font-weight: bold"
+                            >● Inactive</span
+                        >
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap">
+                            <!-- Toggle active/inactive -->
+                            <a
+                                href="{{ url_for('dashboard.toggle_user', user_id=u._id) }}"
+                                style="
+                                    padding: 6px 14px;
+                                    border-radius: 6px;
+                                    font-size: 12px;
+                                    text-decoration: none;
+                                    border: 1px solid #D1D5DB;
+                                    color: #374151;
+                                    background: #F9FAFB;
+                                    transition: all 0.2s ease;
+                                    cursor: pointer;
+                                "
+                                onmouseover="
+                                    this.style.background='#E5E7EB';
+                                    this.style.borderColor='#9CA3AF';
+                                "
+                                onmouseout="
+                                    this.style.background='#F9FAFB';
+                                    this.style.borderColor='#D1D5DB';
+                                "
+                                onclick="
+                                    return confirm('Toggle this user status?');
+                                "
+                            >
+                                {% if u.get('is_active', true) %}Deactivate{%
+                                else %}Activate{% endif %}
+                            </a>
+
+                            <!-- Reset password -->
+                            <button
+                                onclick="document.getElementById('reset-{{ u._id }}').style.display='block'"
+                                style="
+                                    padding: 6px 14px;
+                                    border-radius: 6px;
+                                    font-size: 12px;
+                                    border: 1px solid #BFDBFE;
+                                    color: white;
+                                    background: #3B82F6;
+                                    cursor: pointer;
+                                    transition: all 0.2s ease;
+                                    font-weight: 500;
+                                "
+                                onmouseover="
+                                    this.style.background='#2563EB';
+                                    this.style.borderColor='#3B82F6';
+                                "
+                                onmouseout="
+                                    this.style.background='#3B82F6';
+                                    this.style.borderColor='#BFDBFE';
+                                "
+                            >
+                                Reset Password
+                            </button>
+                        </div>
+
+                        <div
+                            id="reset-{{ u._id }}"
+                            style="display: none; margin-top: 12px; padding: 12px; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px;"
+                        >
+                            <form
+                                method="POST"
+                                action="{{ url_for('dashboard.reset_password', user_id=u._id) }}"
+                                style="display: flex; gap: 8px;"
+                            >
+                                <input
+                                    type="password"
+                                    name="new_password"
+                                    placeholder="New password"
+                                    minlength="6"
+                                    required
+                                    style="
+                                        padding: 8px 12px;
+                                        border: 1px solid #D1D5DB;
+                                        border-radius: 6px;
+                                        font-size: 13px;
+                                        flex: 1;
+                                        background: #FFFFFF;
+                                        color: #111827;
+                                    "
+                                />
+                                <button
+                                    type="submit"
+                                    style="
+                                        padding: 8px 14px;
+                                        background: #3B82F6;
+                                        color: white;
+                                        border: none;
+                                        border-radius: 6px;
+                                        cursor: pointer;
+                                        font-size: 12px;
+                                        font-weight: 500;
+                                        transition: all 0.2s ease;
+                                    "
+                                    onmouseover="this.style.background='#2563EB';"
+                                    onmouseout="this.style.background='#3B82F6';"
+                                >
+                                    Save
+                                </button>
+                                <button
+                                    type="button"
+                                    onclick="document.getElementById('reset-{{ u._id }}').style.display='none'"
+                                    style="
+                                        padding: 8px 14px;
+                                        background: #E5E7EB;
+                                        color: #374151;
+                                        border: 1px solid #D1D5DB;
+                                        border-radius: 6px;
+                                        cursor: pointer;
+                                        font-size: 12px;
+                                        font-weight: 500;
+                                        transition: all 0.2s ease;
+                                    "
+                                    onmouseover="this.style.background='#D1D5DB';"
+                                    onmouseout="this.style.background='#E5E7EB';"
+                                >
+                                    Cancel
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

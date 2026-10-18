@@ -1,0 +1,261 @@
+{% extends "base.html" %} {% block content %}
+
+<div style="max-width: 920px; margin: 0 auto">
+    <div class="classification-header">
+        <div>
+            <h2>🤖 AI Classification Result</h2>
+            <p>Complaint ID: {{ complaint.complaint_id }}</p>
+        </div>
+        <a
+            href="{{ url_for('complaint.view_complaint', cmp_id=complaint.complaint_id) }}"
+            style="
+                color: #3B82F6;
+                text-decoration: none;
+                font-weight: 600;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                margin-top: 12px;
+                transition: color 0.3s;
+            "
+        >
+            ← Back to complaint
+        </a>
+    </div>
+
+    {% if prediction %}
+
+    <!-- Risk banner -->
+    <div class="risk-indicator {{ risk.risk_level | lower }}">
+        <div class="risk-indicator-icon">
+            {% if risk.risk_level | lower == 'high' %}⚠️{% elif risk.risk_level
+            | lower == 'medium' %}⚡{% else %}✅{% endif %}
+        </div>
+        <div>
+            <div
+                style="
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    margin-bottom: 4px;
+                "
+            >
+                <span style="font-size: 16px"
+                    >Risk Level: <strong>{{ risk.risk_level }}</strong></span
+                >
+                <span
+                    style="
+                        background: rgba(0, 0, 0, 0.1);
+                        padding: 4px 12px;
+                        border-radius: 12px;
+                        font-size: 13px;
+                    "
+                    >Score: {{ risk.risk_score }} / 100</span
+                >
+            </div>
+            <div style="font-size: 13px; opacity: 0.9; margin-top: 4px">
+                {{ risk.reason }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Main result card -->
+    <div class="result-card">
+        <h3>Predicted Category</h3>
+        <div
+            style="
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                margin-bottom: 20px;
+                flex-wrap: wrap;
+            "
+        >
+            <div
+                style="
+                    font-size: 28px;
+                    font-weight: 900;
+                    color: #111827;
+                    letter-spacing: -0.5px;
+                "
+            >
+                {{ prediction.category_label }}
+            </div>
+            <span class="classification-badge">
+                {{ (prediction.confidence * 100) | round(1) }}% Confidence
+            </span>
+        </div>
+        <p
+            style="
+                color: #374151;
+                font-style: italic;
+                font-size: 14px;
+                line-height: 1.6;
+            "
+        >
+            "{{ complaint.complaint_text[:250] }}..."
+        </p>
+    </div>
+
+    <!-- Transaction details if available -->
+    {% if transaction %}
+    <div class="result-card" style="border-left: 5px solid #F59E0B;">
+        <h3 style="color: #92400E; display: flex; align-items: center; gap: 8px;">
+            💰 Transaction Details
+        </h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 15px;">
+            <div>
+                <div style="font-size: 11px; text-transform: uppercase; color: #6B7280; font-weight: 700; margin-bottom: 4px;">Amount</div>
+                <div style="font-size: 18px; font-weight: 800; color: #111827;">₹{{ transaction.amount }}</div>
+            </div>
+            {% if transaction.txn_id %}
+            <div>
+                <div style="font-size: 11px; text-transform: uppercase; color: #6B7280; font-weight: 700; margin-bottom: 4px;">Transaction/UTR ID</div>
+                <div style="font-size: 14px; font-weight: 700; color: #111827; word-break: break-all;">{{ transaction.txn_id }}</div>
+            </div>
+            {% endif %}
+            {% if transaction.bank %}
+            <div>
+                <div style="font-size: 11px; text-transform: uppercase; color: #6B7280; font-weight: 700; margin-bottom: 4px;">Bank</div>
+                <div style="font-size: 14px; font-weight: 700; color: #111827;">{{ transaction.bank }}</div>
+            </div>
+            {% endif %}
+            {% if transaction.beneficiary_account %}
+            <div>
+                <div style="font-size: 11px; text-transform: uppercase; color: #6B7280; font-weight: 700; margin-bottom: 4px;">Beneficiary Account</div>
+                <div style="font-size: 14px; font-weight: 700; color: #111827; word-break: break-all;">{{ transaction.beneficiary_account }}</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- All category scores -->
+    <div class="result-card">
+        <h3>All Category Scores</h3>
+        <div class="category-bars">
+            {% set sorted_scores = prediction.all_scores | dictsort(by='value')
+            | reverse | list %} {% for cat, score in sorted_scores %}
+            <div class="category-bar">
+                <div class="category-bar-label">
+                    <span>{{ cat | replace('_',' ') | title }}</span>
+                    <span>{{ (score * 100) | round(1) }}%</span>
+                </div>
+                <div class="category-bar-container">
+                    <div
+                        class="category-bar-fill"
+                        style="width:{{ (score * 100) | round(1) }}%"
+                    ></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Legal sections -->
+    {% if prediction.legal_sections %}
+    <div class="result-card">
+        <h3>Suggested Legal Sections</h3>
+        <div
+            style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px"
+        >
+            {% for section in prediction.legal_sections %}
+            <span
+                style="
+                    background: #DBEAFE;
+                    color: #1D4ED8;
+                    padding: 8px 18px;
+                    border-radius: 24px;
+                    font-size: 14px;
+                    font-weight: 700;
+                    border: 1px solid #BFDBFE;
+                    transition: all 0.3s ease;
+                    cursor: default;
+                    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.1);
+                "
+            >
+                📋 {{ section }}
+            </span>
+            {% endfor %}
+        </div>
+        <p
+            style="
+                margin-top: 16px;
+                color: #6B7280;
+                font-size: 12px;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            "
+        >
+            ⚠️
+            <em
+                >AI-suggested only. Final sections must be verified by the
+                Investigating Officer.</em
+            >
+        </p>
+    </div>
+    {% endif %}
+
+    <!-- Actions -->
+    <div style="display: flex; gap: 16px; margin-top: 32px; flex-wrap: wrap">
+        <a
+            href="{{ url_for('ai.classify', cmp_id=complaint.complaint_id) }}"
+            style="
+                padding: 12px 28px;
+                border: 2px solid #3B82F6;
+                border-radius: 8px;
+                color: #3B82F6;
+                text-decoration: none;
+                font-weight: 700;
+                font-size: 13px;
+                transition: all 0.3s ease;
+                background: transparent;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+            "
+            onmouseover="
+                this.style.background = '#EFF6FF';
+                this.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.2)';
+            "
+            onmouseout="
+                this.style.background = 'transparent';
+                this.style.boxShadow = 'none';
+            "
+        >
+            🔄 Re-run Classification
+        </a>
+        <a
+            href="{{ url_for('complaint.list_complaints') }}"
+            class="btn-primary"
+            style="
+                width: auto;
+                padding: 12px 28px;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+                font-size: 13px;
+            "
+        >
+            ← Back to Complaints
+        </a>
+    </div>
+
+    {% else %}
+    <div style="text-align: center; padding: 60px; color: #9CA3AF">
+        <p>No AI prediction found for this complaint.</p>
+        <a
+            href="{{ url_for('ai.classify', cmp_id=complaint.complaint_id) }}"
+            class="btn-primary"
+            style="
+                width: auto;
+                padding: 10px 24px;
+                display: inline-block;
+                margin-top: 16px;
+            "
+        >
+            Run Classification Now
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

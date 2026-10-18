@@ -1,0 +1,167 @@
+{% extends "base.html" %} {% block content %}
+
+<div style="max-width: 680px; margin: 0 auto">
+    <div
+        style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        "
+    >
+        <div>
+            <h2 style="color: #111827">Assign Complaint</h2>
+            <p style="color: #6B7280">{{ complaint.complaint_id }}</p>
+        </div>
+        <a
+            href="{{ url_for('complaint.view_complaint', cmp_id=complaint.complaint_id) }}"
+            style="color: #3B82F6; text-decoration: none"
+            >← Back to complaint</a
+        >
+    </div>
+
+    <!-- Complaint summary -->
+    <div class="detail-card" style="margin-bottom: 20px">
+        <h3>Complaint Summary</h3>
+        <div class="detail-grid">
+            <div>
+                <label>Complainant</label>
+                <p>{{ complaint.complainant_name }}</p>
+            </div>
+            <div>
+                <label>District</label>
+                <p>{{ complaint.district }}</p>
+            </div>
+            <div>
+                <label>Crime Type</label>
+                <p>
+                    {{ complaint.crime_type | replace('_',' ') | title if
+                    complaint.crime_type else '—' }}
+                </p>
+            </div>
+            <div>
+                <label>Amount</label>
+                <p>
+                    Rs. {{ "{:,.0f}".format(complaint.amount_involved) if
+                    complaint.amount_involved else '—' }}
+                </p>
+            </div>
+        </div>
+        {% if complaint.status %}
+        <div style="margin-top: 12px">
+            <label style="font-size: 12px; color: #888; font-weight: bold"
+                >Current Status</label
+            >
+            <span
+                class="badge badge-{{ complaint.status }}"
+                style="margin-left: 8px"
+            >
+                {{ complaint.status | upper }}
+            </span>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Current assignment -->
+    {% if current_officer %}
+    <div
+        style="
+            background: #fff8e1;
+            border-left: 4px solid #f57f17;
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        "
+    >
+        <strong style="color: #f97316">Currently Assigned To:</strong>
+        <span style="margin-left: 10px; color: #333">
+            {{ current_officer.full_name }} ({{ current_officer.role | title }}
+            — {{ current_officer.district }})
+        </span>
+    </div>
+    {% endif %}
+
+    <!-- Assignment form -->
+    <div class="form-section">
+        <h3>Assign to Officer</h3>
+        <form
+            method="POST"
+            action="{{ url_for('assignment.assign', cmp_id=complaint.complaint_id) }}"
+        >
+            <div class="form-group">
+                <label>Select Officer / Analyst *</label>
+                <select name="officer_id" required>
+                    <option value="">-- Select Officer --</option>
+                    {% for officer in officers %} {% set oid = officer._id |
+                    string %} {% set cid = current_officer._id | string if
+                    current_officer else '' %} {% if oid == cid %}
+                    <option value="{{ oid }}" selected>
+                        {{ officer.full_name }} — {{ officer.role | title }} ({{
+                        officer.district }})
+                    </option>
+                    {% else %}
+                    <option value="{{ oid }}">
+                        {{ officer.full_name }} — {{ officer.role | title }} ({{
+                        officer.district }})
+                    </option>
+                    {% endif %} {% endfor %}
+                </select>
+                {% if not officers %}
+                <p style="color: #c62828; font-size: 13px; margin-top: 6px">
+                    No active officers found. Please add officers in User
+                    Management first.
+                </p>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label>Priority Level *</label>
+                <select name="priority" required>
+                    <option value="normal">Normal</option>
+                    <option value="high">High Priority</option>
+                    <option value="urgent">Urgent</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Assignment Notes (optional)</label>
+                <textarea
+                    name="notes"
+                    rows="3"
+                    placeholder="Any specific instructions for the officer..."
+                ></textarea>
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-top: 8px">
+                <button
+                    type="submit"
+                    class="btn-primary"
+                    style="width: auto; padding: 12px 32px"
+                    {%
+                    if
+                    not
+                    officers
+                    %}disabled{%
+                    endif
+                    %}
+                >
+                    Assign Complaint
+                </button>
+                <a
+                    href="{{ url_for('complaint.view_complaint', cmp_id=complaint.complaint_id) }}"
+                    style="
+                        padding: 12px 24px;
+                        border: 1px solid #ccc;
+                        border-radius: 6px;
+                        text-decoration: none;
+                        color: #444;
+                    "
+                >
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

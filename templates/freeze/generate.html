@@ -1,0 +1,585 @@
+{% extends "base.html" %} {% block content %}
+<div style="max-width: 900px; margin: 0 auto; padding: 20px">
+    <div style="margin-bottom: 30px">
+        <h1
+            style="
+                color: #111827;
+                font-size: 28px;
+                font-weight: 700;
+                margin: 0 0 12px 0;
+            "
+        >
+            ❄️ GENERATE TRANSACTION FREEZE REQUEST
+        </h1>
+        <p style="color: #6B7280; font-size: 14px; margin: 0">
+            Create an urgent freeze request for this financial fraud complaint
+            to be forwarded to the concerned bank and RBI.
+        </p>
+    </div>
+
+    {% if not eligibility.eligible %}
+    <div
+        style="
+            background: #FEE2E2;
+            border-left: 4px solid #DC2626;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+        "
+    >
+        <div style="display: flex; gap: 12px; align-items: flex-start">
+            <div style="font-size: 20px; margin-top: 2px">⚠️</div>
+            <div>
+                <div
+                    style="color: #92400E; font-weight: 600; margin-bottom: 4px"
+                >
+                    Not Eligible for Freeze Request
+                </div>
+                <div style="color: #7F1D1D; font-size: 14px">
+                    {{ eligibility.reason }}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Priority Metrics -->
+    <div
+        style="
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        "
+    >
+        <div
+            style="
+                background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+                border-radius: 12px;
+                padding: 24px;
+                color: white;
+                text-align: center;
+            "
+        >
+            <div style="font-size: 28px; font-weight: 800">
+                {{ priority_score }}
+            </div>
+            <div
+                style="
+                    font-size: 12px;
+                    text-transform: uppercase;
+                    opacity: 0.9;
+                    margin-top: 4px;
+                "
+            >
+                Priority Score
+            </div>
+            <div style="font-size: 11px; opacity: 0.8; margin-top: 2px">
+                (out of 100)
+            </div>
+        </div>
+        <div
+            style="
+                background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+                border-radius: 12px;
+                padding: 24px;
+                color: white;
+                text-align: center;
+            "
+        >
+            <div style="font-size: 24px; font-weight: 800; color: white">
+                ₹ {% if complaint.amount_involved %}{{ complaint.amount_involved
+                }}{% else %}—{% endif %}
+            </div>
+            <div
+                style="
+                    font-size: 12px;
+                    text-transform: uppercase;
+                    opacity: 0.9;
+                    margin-top: 4px;
+                "
+            >
+                Amount Involved
+            </div>
+        </div>
+        <div
+            style="
+                background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+                border-radius: 12px;
+                padding: 24px;
+                color: white;
+                text-align: center;
+            "
+        >
+            <div style="font-size: 24px; font-weight: 800">
+                {% if priority_score > 75 %}URGENT{% elif priority_score > 50
+                %}HIGH{% else %}NORMAL{% endif %}
+            </div>
+            <div
+                style="
+                    font-size: 12px;
+                    text-transform: uppercase;
+                    opacity: 0.9;
+                    margin-top: 4px;
+                "
+            >
+                Priority Level
+            </div>
+        </div>
+    </div>
+
+    <!-- Complaint and Form Section -->
+    <div
+        style="
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        "
+    >
+        <!-- Complaint Summary -->
+        <div>
+            <div
+                style="
+                    background: #0f172a;
+                    border: 1px solid #334155;
+                    border-radius: 12px;
+                    padding: 20px;
+                "
+            >
+                <h3
+                    style="
+                        margin: 0 0 16px 0;
+                        color: #f1f5f9;
+                        font-size: 14px;
+                        font-weight: 700;
+                        text-transform: uppercase;
+                    "
+                >
+                    📋 COMPLAINT SUMMARY
+                </h3>
+                <div style="space-y: 12px">
+                    <div style="margin-bottom: 14px">
+                        <div
+                            style="
+                                color: #94a3b8;
+                                font-size: 12px;
+                                text-transform: uppercase;
+                                margin-bottom: 4px;
+                            "
+                        >
+                            Complaint ID
+                        </div>
+                        <p style="margin: 0; color: #e2e8f0; font-weight: 600">
+                            {{ complaint_id }}
+                        </p>
+                    </div>
+                    <div style="margin-bottom: 14px">
+                        <div
+                            style="
+                                color: #94a3b8;
+                                font-size: 12px;
+                                text-transform: uppercase;
+                                margin-bottom: 4px;
+                            "
+                        >
+                            Complainant Name
+                        </div>
+                        <p style="margin: 0; color: #e2e8f0">
+                            {{ complainant_name }}
+                        </p>
+                    </div>
+                    <div style="margin-bottom: 14px">
+                        <div
+                            style="
+                                color: #94a3b8;
+                                font-size: 12px;
+                                text-transform: uppercase;
+                                margin-bottom: 4px;
+                            "
+                        >
+                            District
+                        </div>
+                        <p style="margin: 0; color: #e2e8f0">{{ district }}</p>
+                    </div>
+                    <div style="margin-bottom: 14px">
+                        <div
+                            style="
+                                color: #94a3b8;
+                                font-size: 12px;
+                                text-transform: uppercase;
+                                margin-bottom: 4px;
+                            "
+                        >
+                            Mobile Number
+                        </div>
+                        <p style="margin: 0; color: #e2e8f0">{{ mobile }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transaction Form -->
+        <div>
+            <div
+                style="
+                    background: #0f172a;
+                    border: 1px solid #334155;
+                    border-radius: 12px;
+                    padding: 20px;
+                "
+            >
+                <h3
+                    style="
+                        margin: 0 0 16px 0;
+                        color: #f1f5f9;
+                        font-size: 14px;
+                        font-weight: 700;
+                        text-transform: uppercase;
+                    "
+                >
+                    💳 TRANSACTION DETAILS
+                </h3>
+                <p style="margin: 0 0 16px 0; color: #94a3b8; font-size: 13px">
+                    Enter transaction details (required for freeze request)
+                </p>
+                <form method="POST" style="space-y: 12px">
+                    <div style="margin-bottom: 14px">
+                        <label
+                            style="
+                                display: block;
+                                color: #cbd5e1;
+                                font-size: 12px;
+                                font-weight: 600;
+                                margin-bottom: 6px;
+                                text-transform: uppercase;
+                            "
+                            >Transaction ID / UTR
+                            <span style="color: #f87171">*</span></label
+                        >
+                        <input
+                            type="text"
+                            name="transaction_id"
+                            placeholder="Enter transaction ID or UTR"
+                            required
+                            style="
+                                width: 100%;
+                                padding: 10px 12px;
+                                background: #1e293b;
+                                border: 1px solid #334155;
+                                border-radius: 6px;
+                                color: #e2e8f0;
+                                font-family: inherit;
+                            "
+                        />
+                    </div>
+                    <div
+                        style="
+                            display: grid;
+                            grid-template-columns: 1fr 1fr;
+                            gap: 12px;
+                            margin-bottom: 14px;
+                        "
+                    >
+                        <div>
+                            <label
+                                style="
+                                    display: block;
+                                    color: #cbd5e1;
+                                    font-size: 12px;
+                                    font-weight: 600;
+                                    margin-bottom: 6px;
+                                    text-transform: uppercase;
+                                "
+                                >Bank Name
+                                <span style="color: #f87171">*</span></label
+                            >
+                            <input
+                                type="text"
+                                name="bank_name"
+                                placeholder="e.g., ICICI Bank, HDFC Bank"
+                                required
+                                style="
+                                    width: 100%;
+                                    padding: 10px 12px;
+                                    background: #1e293b;
+                                    border: 1px solid #334155;
+                                    border-radius: 6px;
+                                    color: #e2e8f0;
+                                    font-family: inherit;
+                                "
+                            />
+                        </div>
+                        <div>
+                            <label
+                                style="
+                                    display: block;
+                                    color: #cbd5e1;
+                                    font-size: 12px;
+                                    font-weight: 600;
+                                    margin-bottom: 6px;
+                                    text-transform: uppercase;
+                                "
+                                >Amount
+                                <span style="color: #f87171">*</span></label
+                            >
+                            <input
+                                type="number"
+                                name="amount"
+                                placeholder="Amount in INR"
+                                required
+                                style="
+                                    width: 100%;
+                                    padding: 10px 12px;
+                                    background: #1e293b;
+                                    border: 1px solid #334155;
+                                    border-radius: 6px;
+                                    color: #e2e8f0;
+                                    font-family: inherit;
+                                "
+                            />
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 14px">
+                        <label
+                            style="
+                                display: block;
+                                color: #cbd5e1;
+                                font-size: 12px;
+                                font-weight: 600;
+                                margin-bottom: 6px;
+                                text-transform: uppercase;
+                            "
+                            >Beneficiary Account Number</label
+                        >
+                        <input
+                            type="text"
+                            name="beneficiary_account"
+                            placeholder="Account number (masked format)"
+                            style="
+                                width: 100%;
+                                padding: 10px 12px;
+                                background: #1e293b;
+                                border: 1px solid #334155;
+                                border-radius: 6px;
+                                color: #e2e8f0;
+                                font-family: inherit;
+                            "
+                        />
+                    </div>
+                    <div style="margin-bottom: 16px">
+                        <label
+                            style="
+                                display: block;
+                                color: #cbd5e1;
+                                font-size: 12px;
+                                font-weight: 600;
+                                margin-bottom: 6px;
+                                text-transform: uppercase;
+                            "
+                            >Beneficiary Name</label
+                        >
+                        <input
+                            type="text"
+                            name="beneficiary_name"
+                            placeholder="Account holder name"
+                            style="
+                                width: 100%;
+                                padding: 10px 12px;
+                                background: #1e293b;
+                                border: 1px solid #334155;
+                                border-radius: 6px;
+                                color: #e2e8f0;
+                                font-family: inherit;
+                            "
+                        />
+                    </div>
+                    <div style="margin-bottom: 16px">
+                        <label
+                            style="
+                                display: block;
+                                color: #cbd5e1;
+                                font-size: 12px;
+                                font-weight: 600;
+                                margin-bottom: 6px;
+                                text-transform: uppercase;
+                            "
+                            >Additional Notes (Optional)</label
+                        >
+                        <textarea
+                            name="notes"
+                            placeholder="Any additional information for the bank"
+                            style="
+                                width: 100%;
+                                padding: 10px 12px;
+                                background: #1e293b;
+                                border: 1px solid #334155;
+                                border-radius: 6px;
+                                color: #e2e8f0;
+                                font-family: inherit;
+                                min-height: 80px;
+                                resize: vertical;
+                            "
+                        ></textarea>
+                    </div>
+                    <div style="display: flex; gap: 12px">
+                        <button
+                            type="submit"
+                            style="
+                                flex: 1;
+                                padding: 12px;
+                                background: #3b82f6;
+                                color: white;
+                                border: none;
+                                border-radius: 6px;
+                                font-weight: 600;
+                                cursor: pointer;
+                                font-size: 14px;
+                                text-transform: uppercase;
+                            "
+                        >
+                            ✓ Generate Freeze Request
+                        </button>
+                        <a
+                            href="{{ url_for('complaint.view_complaint', cmp_id=complaint_id) }}"
+                            style="
+                                flex: 1;
+                                padding: 12px;
+                                background: #374151;
+                                color: white;
+                                border: none;
+                                border-radius: 6px;
+                                font-weight: 600;
+                                cursor: pointer;
+                                font-size: 14px;
+                                text-transform: uppercase;
+                                text-align: center;
+                                text-decoration: none;
+                            "
+                            >← Cancel</a
+                        >
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Boxes -->
+    <div style="display: grid; gap: 16px">
+        <!-- Important Notice -->
+        <div
+            style="
+                background: #fef3c7;
+                border-left: 4px solid #d97706;
+                border-radius: 8px;
+                padding: 16px;
+            "
+        >
+            <h4
+                style="
+                    margin: 0 0 8px 0;
+                    color: #92400e;
+                    display: flex;
+                    gap: 8px;
+                    align-items: center;
+                    font-size: 14px;
+                    font-weight: 700;
+                "
+            >
+                ⚠️ Important Notice
+            </h4>
+            <p
+                style="
+                    margin: 0;
+                    color: #b45309;
+                    font-size: 13px;
+                    line-height: 1.5;
+                "
+            >
+                This freeze request will be forwarded to the concerned bank's
+                nodal officer for immediate action. Banks are expected to freeze
+                the transaction within 24-48 hours as per RBI guidelines. Ensure
+                all transaction details are accurate before submitting.
+            </p>
+        </div>
+
+        <!-- RBI Guidelines -->
+        <div
+            style="
+                background: #0f172a;
+                border: 1px solid #334155;
+                border-radius: 8px;
+                padding: 16px;
+            "
+        >
+            <h4
+                style="
+                    margin: 0 0 8px 0;
+                    color: #f1f5f9;
+                    font-size: 14px;
+                    font-weight: 700;
+                "
+            >
+                📋 RBI GUIDELINES &amp; LEGAL BASIS
+            </h4>
+            <ul
+                style="
+                    margin: 0;
+                    padding-left: 20px;
+                    color: #cbd5e1;
+                    font-size: 13px;
+                "
+            >
+                <li style="margin-bottom: 4px">
+                    Section 8 of RBI Cyber Security Framework
+                </li>
+                <li style="margin-bottom: 4px">
+                    RBI Guidelines on Regulation of Payment Systems (2023)
+                </li>
+                <li style="margin-bottom: 4px">
+                    Sections 66C, 66D of IT Act, 2000
+                </li>
+                <li style="margin-bottom: 4px">
+                    Section 420, 406 of Indian Penal Code
+                </li>
+                <li>Urgent Action Protocols for Financial Fraud</li>
+            </ul>
+        </div>
+
+        <!-- Time Sensitivity -->
+        <div
+            style="
+                background: #0f172a;
+                border: 1px solid #334155;
+                border-radius: 8px;
+                padding: 16px;
+            "
+        >
+            <h4
+                style="
+                    margin: 0 0 8px 0;
+                    color: #f1f5f9;
+                    font-size: 14px;
+                    font-weight: 700;
+                "
+            >
+                ⏰ TIME SENSITIVITY
+            </h4>
+            <div style="space-y: 8px; color: #cbd5e1; font-size: 13px">
+                <p style="margin: 0 0 6px 0">
+                    <strong>24-48 Hours:</strong> Bank freezes the
+                    account/transaction
+                </p>
+                <p style="margin: 0 0 6px 0">
+                    <strong>48-72 Hours:</strong> Bank may release held funds
+                    pending investigation
+                </p>
+                <p style="margin: 0">
+                    <strong>After 7 Days:</strong> FIR registration becomes
+                    mandatory for sustained freeze
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,731 @@
+{
+  "sops": {
+    "financial_fraud": {
+      "category_name": "Cyber Financial Fraud",
+      "category_keywords": [
+        "upi fraud", "credit card", "debit card", "bank account", "otp",
+        "kyc update", "phishing", "investment scam", "loan fraud",
+        "money transferred", "withdrawn from account", "fraudulent transaction"
+      ],
+      "priority": "HIGH",
+      "deadline_hours": 24,
+      "legal_sections": [
+        "IPC 420 - Cheating and dishonestly inducing delivery of property",
+        "IT Act 66C - Identity theft",
+        "IT Act 66D - Cheating by personation using computer resource",
+        "IPC 406 - Criminal breach of trust",
+        "IPC 120B - Criminal conspiracy"
+      ],
+      "investigation_steps": [
+        {
+          "step_number": 1,
+          "action": "Immediately file transaction freeze request with the bank",
+          "description": "Contact the bank's nodal officer and request urgent freeze of the beneficiary account. RBI guidelines mandate action within 24-48 hours.",
+          "responsible": "IO / Cyber Cell",
+          "estimated_time": "1 hour"
+        },
+        {
+          "step_number": 2,
+          "action": "Trace beneficiary account details and transaction trail",
+          "description": "Obtain full beneficiary account details, transaction hash/UTR, and follow the money trail through multiple accounts if layered.",
+          "responsible": "IO + Bank Nodal Officer",
+          "estimated_time": "4-6 hours"
+        },
+        {
+          "step_number": 3,
+          "action": "Collect digital evidence and screenshots",
+          "description": "Preserve call recordings, WhatsApp chats, SMS screenshots, phishing links, and any digital footprint left by the fraudster.",
+          "responsible": "IO / Cyber Assistant",
+          "estimated_time": "2 hours"
+        },
+        {
+          "step_number": 4,
+          "action": "Register FIR under applicable sections",
+          "description": "File First Information Report at the cyber crime police station. Include all transaction details, amount, and evidence.",
+          "responsible": "IO",
+          "estimated_time": "3-4 hours"
+        },
+        {
+          "step_number": 5,
+          "action": "Initiate fund reversal process through bank",
+          "description": "Coordinate with bank's nodal officer to reverse the fraudulent transaction. Submit formal request with FIR copy.",
+          "responsible": "IO + Bank Nodal Officer",
+          "estimated_time": "48-72 hours"
+        },
+        {
+          "step_number": 6,
+          "action": "Update complainant on case progress",
+          "description": "Inform the victim about freeze status, FIR registration, and expected timeline for fund recovery.",
+          "responsible": "IO / Support Staff",
+          "estimated_time": "30 minutes"
+        }
+      ],
+      "required_authorities": [
+        "Bank Nodal Officer",
+        "Cyber Cell Magistrate",
+        "RBI Banking Ombudsman (if bank delays)"
+      ],
+      "external_coordination": {
+        "bank": true,
+        "payment_gateway": true,
+        "npci": true,
+        "cert_in": false
+      },
+      "documentation_required": [
+        "Complaint copy",
+        "Transaction screenshot",
+        "Bank statement",
+        "Call logs/SMS screenshots",
+        "FIR copy",
+        "Freeze request letter"
+      ],
+      "sample_freezing_letter": "To, The Nodal Officer, [Bank Name], [Branch Address]. Subject: Urgent Freeze Request under Section [xx] of IT Act, 2000. This is to bring to your kind notice that a cyber financial fraud of Rs. [Amount] has been reported vide Complaint No. [Complaint ID] dated [Date]. The fraudulent transaction details are: Transaction ID: [Txn ID], Amount: [Amount], Beneficiary Account: [Acc No]. You are requested to immediately freeze the beneficiary account and hold the transaction for further investigation. This request is made as per RBI guidelines on time-bound action against cyber frauds. Thanking you, [Signature], [Rank], [Police Station]."
+    },
+    
+    "digital_arrest": {
+      "category_name": "Digital Arrest Scam",
+      "category_keywords": [
+        "cbi officer", "digital arrest", "arrest warrant", "narcotics case",
+        "money laundering", "drug trafficking", "video call", "police uniform",
+        "supreme court", "judge", "cbi", "ed", "enforcement directorate",
+        "income tax raid", "fake police", "warrant"
+      ],
+      "priority": "CRITICAL",
+      "deadline_hours": 24,
+      "legal_sections": [
+        "IPC 384 - Extortion",
+        "IPC 506 - Criminal intimidation",
+        "IPC 419 - Cheating by impersonation",
+        "IT Act 66D - Cheating by personation using computer resource",
+        "IPC 170 - Impersonating a public servant"
+      ],
+      "investigation_steps": [
+        {
+          "step_number": 1,
+          "action": "Verify caller identity through call detail records (CDR)",
+          "description": "Immediately request CDR from telecom provider to trace the caller's location, IMEI number, and call flow.",
+          "responsible": "IO + Telecom Provider",
+          "estimated_time": "6-12 hours"
+        },
+        {
+          "step_number": 2,
+          "action": "Warn complainant not to pay any further amount",
+          "description": "Contact the victim immediately and inform them that no government agency demands money over phone/video call. Provide counseling.",
+          "responsible": "IO / Cyber Cell",
+          "estimated_time": "30 minutes"
+        },
+        {
+          "step_number": 3,
+          "action": "Trace IP address and digital footprints from video call platform",
+          "description": "Request WhatsApp/Zoom/Google Meet logs to trace the caller's IP address and device information.",
+          "responsible": "IO + Platform Provider",
+          "estimated_time": "24-48 hours"
+        },
+        {
+          "step_number": 4,
+          "action": "Check for similar complaints in district and state",
+          "description": "Cross-reference with existing complaints using same phone number, UPI ID, or modus operandi to identify syndicate.",
+          "responsible": "IO / Cyber Cell Intelligence",
+          "estimated_time": "4-6 hours"
+        },
+        {
+          "step_number": 5,
+          "action": "Issue public awareness alert through official channels",
+          "description": "Publish warning on social media, police website, and WhatsApp broadcast about the new scam modus operandi.",
+          "responsible": "SP / CCI",
+          "estimated_time": "2 hours"
+        },
+        {
+          "step_number": 6,
+          "action": "Coordinate with banks to freeze any transferred amounts",
+          "description": "If victim has transferred money, follow financial fraud SOP to freeze beneficiary accounts.",
+          "responsible": "IO + Bank Nodal Officer",
+          "estimated_time": "24 hours"
+        }
+      ],
+      "required_authorities": [
+        "Telecom Provider (CDR)",
+        "Platform Provider (WhatsApp/Zoom)",
+        "Bank Nodal Officer",
+        "Cyber Crime Cell Magistrate"
+      ],
+      "external_coordination": {
+        "telecom_provider": true,
+        "platform_provider": true,
+        "bank": true,
+        "cert_in": false
+      },
+      "documentation_required": [
+        "Victim statement",
+        "Call screenshots",
+        "Video call recording (if any)",
+        "Bank transaction proof",
+        "CDR report",
+        "Social media warning copy"
+      ],
+      "victim_counseling_script": "Sir/Madam, please understand that no government agency including CBI, ED, Income Tax, or Police ever conducts 'digital arrest' or demands money for case closure over phone or video call. This is a scam. Please disconnect immediately. Never share OTP, never install any app, never transfer money. If you have already lost money, please visit your nearest cyber cell with transaction details."
+    },
+    
+    "fake_news": {
+      "category_name": "Fake News / Misinformation",
+      "category_keywords": [
+        "viral", "whatsapp forward", "fake news", "misinformation",
+        "rumor", "forwarded message", "social media post", "claim",
+        "alert", "warning message", "fake", "not true", "misleading"
+      ],
+      "priority": "HIGH (if communal or law & order impact)",
+      "deadline_hours": 48,
+      "legal_sections": [
+        "IPC 505 - False news with intent to cause fear",
+        "IPC 153A - Promoting enmity between groups",
+        "IT Act 66A - Offensive messages (advisory - as per SC ruling)",
+        "IPC 505(1)(b) - False news with intent to cause public mischief"
+      ],
+      "investigation_steps": [
+        {
+          "step_number": 1,
+          "action": "Identify original source of the message",
+          "description": "Trace the message back to its origin by analyzing forward chains, metadata, and sender details.",
+          "responsible": "IO / Cyber Assistant",
+          "estimated_time": "12-24 hours"
+        },
+        {
+          "step_number": 2,
+          "action": "Conduct fact-checking through official sources",
+          "description": "Verify the claim through PIB Fact Check, government websites, or contacting relevant authorities.",
+          "responsible": "IO + Fact-check team",
+          "estimated_time": "2-4 hours"
+        },
+        {
+          "step_number": 3,
+          "action": "Issue official clarification through all channels",
+          "description": "Publish fact-check result on police website, social media, and press release. Issue WhatsApp broadcast if needed.",
+          "responsible": "SP / PRO",
+          "estimated_time": "2 hours"
+        },
+        {
+          "step_number": 4,
+          "action": "Track spread of misinformation on social media",
+          "description": "Monitor Facebook, Twitter, Instagram, and WhatsApp groups for continued spread. Identify key sharers.",
+          "responsible": "Social Media Monitoring Cell",
+          "estimated_time": "24 hours"
+        },
+        {
+          "step_number": 5,
+          "action": "Register case under relevant sections",
+          "description": "If false news has caused actual harm (panic, violence, loss), register FIR under applicable sections.",
+          "responsible": "IO",
+          "estimated_time": "4 hours"
+        },
+        {
+          "step_number": 6,
+          "action": "Coordinate with platform owners to remove content",
+          "description": "Send legal request to WhatsApp/Facebook/Twitter to remove the fake message and identify repeat offenders.",
+          "responsible": "IO + Legal Cell",
+          "estimated_time": "48 hours"
+        }
+      ],
+      "required_authorities": [
+        "PIB Fact Check Team",
+        "Social Media Platform Owners",
+        "Press Information Bureau",
+        "District Magistrate (if communal angle)"
+      ],
+      "external_coordination": {
+        "social_media_platforms": true,
+        "fact_checking_agencies": true,
+        "press_media": true,
+        "whatsapp_helpline": true
+      },
+      "documentation_required": [
+        "Screenshot of the fake message",
+        "Forward chain analysis",
+        "Fact-check report",
+        "Public clarification issued",
+        "FIR copy (if filed)"
+      ],
+      "public_warning_template": "⚠️ ALERT! A message is circulating on WhatsApp/Social Media claiming that [content of fake message]. This claim is FALSE. Please do not forward this message. Official source confirms that [fact-check result]. For any clarification, contact your nearest police station or call 1930. - Uttar Pradesh Police"
+    },
+    
+    "darknet": {
+      "category_name": "Darknet / Deep Web Crime",
+      "category_keywords": [
+        "dark web", "darknet", "tor browser", "bitcoin", "cryptocurrency",
+        "onion link", "dark market", "darknet marketplace", "crypto",
+        "monero", "illegal marketplace", "drugs", "weapons", "hacked data"
+      ],
+      "priority": "CRITICAL",
+      "deadline_hours": 24,
+      "legal_sections": [
+        "IT Act 66F - Cyber terrorism (if national security threat)",
+        "NDPS Act - Narcotic drugs and psychotropic substances",
+        "Arms Act - Illegal weapons",
+        "IT Act 67 - Publishing obscene material",
+        "IPC 120B - Criminal conspiracy"
+      ],
+      "investigation_steps": [
+        {
+          "step_number": 1,
+          "action": "ESCALATE TO SPECIALIZED CYBER CRIME CELL",
+          "description": "Darknet cases require specialized forensic tools and expertise. Immediately escalate to state/national cyber crime unit.",
+          "responsible": "CCI → State Cyber Cell",
+          "estimated_time": "2 hours"
+        },
+        {
+          "step_number": 2,
+          "action": "Preserve ALL digital evidence",
+          "description": "Secure screenshots, onion links, PGP keys, Bitcoin addresses, wallet transactions, and communication logs.",
+          "responsible": "IO + Digital Forensics Team",
+          "estimated_time": "4-6 hours"
+        },
+        {
+          "step_number": 3,
+          "action": "Trace cryptocurrency transactions",
+          "description": "Use blockchain forensic tools (like Chainalysis) to trace Bitcoin/Monero transactions and identify wallets.",
+          "responsible": "Forensic Team + CERT-In",
+          "estimated_time": "24-72 hours"
+        },
+        {
+          "step_number": 4,
+          "action": "Coordinate with CERT-In for technical investigation",
+          "description": "CERT-In has specialized capabilities for darknet investigation, IP tracing through Tor exit nodes.",
+          "responsible": "IO + CERT-In",
+          "estimated_time": "48 hours"
+        },
+        {
+          "step_number": 5,
+          "action": "Initiate parallel financial investigation",
+          "description": "Trace any cryptocurrency to exchange accounts; coordinate with FIU-IND for money trail.",
+          "responsible": "IO + FIU-IND + Crypto Exchanges",
+          "estimated_time": "72 hours"
+        },
+        {
+          "step_number": 6,
+          "action": "Register FIR under appropriate sections",
+          "description": "Based on type of illegal activity (drugs/weapons/data/hacking), register FIR under NDPS/Arms/IT Act.",
+          "responsible": "IO + Legal Cell",
+          "estimated_time": "8 hours"
+        },
+        {
+          "step_number": 7,
+          "action": "Maintain strict secrecy of investigation",
+          "description": "Darknet investigations are highly sensitive. Limit information sharing on a need-to-know basis.",
+          "responsible": "ALL INVESTIGATORS",
+          "estimated_time": "Throughout investigation"
+        }
+      ],
+      "required_authorities": [
+        "State Cyber Crime Cell",
+        "CERT-In",
+        "FIU-IND (Financial Intelligence Unit)",
+        "Cryptocurrency Exchanges (WazirX, CoinDCX, etc.)",
+        "National Cyber Crime Reporting Portal"
+      ],
+      "external_coordination": {
+        "cert_in": true,
+        "crypto_exchanges": true,
+        "fiu_ind": true,
+        "international_agencies": true,
+        "blockchain_forensic_tools": true
+      },
+      "documentation_required": [
+        "Onion link (screenshot)",
+        "Marketplace name",
+        "Seller username",
+        "Cryptocurrency wallet address",
+        "Transaction hash",
+        "Communication logs",
+        "CERT-In report",
+        "FIR copy"
+      ],
+      "special_notes": "Darknet investigations require specialized training and tools. Many darknet markets operate internationally. Coordinate with INTERPOL if the crime involves cross-border elements. Never attempt to access darknet links from police network without proper safeguards."
+    },
+    
+    "identity_theft": {
+      "category_name": "Identity Theft / Impersonation",
+      "category_keywords": [
+        "fake account", "impersonation", "identity theft", "aadhaar misuse",
+        "pan card misuse", "fake profile", "photos stolen", "fake id",
+        "someone using my name", "fake instagram", "fake facebook"
+      ],
+      "priority": "HIGH (if financial loss or reputational harm)",
+      "deadline_hours": 48,
+      "legal_sections": [
+        "IT Act 66C - Identity theft",
+        "IPC 468 - Forgery for purpose of cheating",
+        "IPC 471 - Using forged document as genuine",
+        "IPC 419 - Cheating by impersonation",
+        "IT Act 66E - Violation of privacy"
+      ],
+      "investigation_steps": [
+        {
+          "step_number": 1,
+          "action": "Freeze Aadhaar through UIDAI portal",
+          "description": "Immediately lock biometric authentication on UIDAI portal. Request temporary deactivation if needed.",
+          "responsible": "Victim + IO guidance",
+          "estimated_time": "1 hour"
+        },
+        {
+          "step_number": 2,
+          "action": "Block PAN card through income tax portal",
+          "description": "Report unauthorized use of PAN to Income Tax Department. Request blocking or reissuance of PAN.",
+          "responsible": "Victim + IO guidance",
+          "estimated_time": "24 hours"
+        },
+        {
+          "step_number": 3,
+          "action": "Check for unauthorized financial transactions/loans",
+          "description": "Request CIBIL report to check if loans or credit cards have been opened using victim's identity.",
+          "responsible": "IO + Victim",
+          "estimated_time": "48 hours"
+        },
+        {
+          "step_number": 4,
+          "action": "Coordinate with banks/platforms to freeze/fake accounts",
+          "description": "Send legal request to Facebook/Instagram/Twitter/Banks to take down fake profiles/accounts.",
+          "responsible": "IO + Platform Provider",
+          "estimated_time": "48-72 hours"
+        },
+        {
+          "step_number": 5,
+          "action": "Collect evidence of impersonation",
+          "description": "Gather screenshots of fake profile, messages sent to contacts, and any financial transactions done using stolen identity.",
+          "responsible": "IO / Victim",
+          "estimated_time": "4-6 hours"
+        },
+        {
+          "step_number": 6,
+          "action": "Register FIR under IT Act 66C and IPC sections",
+          "description": "File FIR documenting all aspects of identity theft and any resulting financial/reputational damage.",
+          "responsible": "IO",
+          "estimated_time": "4 hours"
+        },
+        {
+          "step_number": 7,
+          "action": "Issue public clarification if reputation affected",
+          "description": "If needed, issue statement through police channels clarifying that victim's identity was stolen.",
+          "responsible": "SP / PRO",
+          "estimated_time": "24 hours"
+        }
+      ],
+      "required_authorities": [
+        "UIDAI (Aadhaar)",
+        "Income Tax Department (PAN)",
+        "CIBIL / Credit Bureaus",
+        "Social Media Platforms",
+        "Banks (if financial misuse)"
+      ],
+      "external_coordination": {
+        "uidai": true,
+        "income_tax": true,
+        "social_media_platforms": true,
+        "credit_bureaus": true,
+        "banks": true
+      },
+      "documentation_required": [
+        "Screenshots of fake profile",
+        "Aadhaar card copy",
+        "PAN card copy",
+        "CIBIL report (if financial misuse)",
+        "Bank statements",
+        "FIR copy",
+        "UIDAI/Facebook response"
+      ],
+      "victim_guidance": "1. Immediately change passwords of all email and social media accounts. 2. Enable two-factor authentication everywhere. 3. Freeze your Aadhaar biometrics on UIDAI portal. 4. Download CIBIL report to check for unauthorized credit activity. 5. Report fake profiles to platform using 'impersonation' option. 6. File police complaint with all evidence."
+    },
+    
+    "cyber_stalking": {
+      "category_name": "Cyber Stalking / Harassment",
+      "category_keywords": [
+        "stalking", "harassment", "unknown number", "repeated calls",
+        "threatening messages", "following", "calls at night", "abusive calls",
+        "darr raha hoon", "pareshan"
+      ],
+      "priority": "HIGH",
+      "deadline_hours": 24,
+      "legal_sections": [
+        "IPC 354D - Stalking",
+        "IPC 509 - Word/gesture insulting modesty",
+        "IPC 506 - Criminal intimidation",
+        "IT Act 67 - Obscene material",
+        "IPC 507 - Criminal intimidation by anonymous communication"
+      ],
+      "investigation_steps": [
+        {
+          "step_number": 1,
+          "action": "Trace caller/message origin through CDR and IP logs",
+          "description": "Request call detail records from telecom provider. For social media, request IP logs from platform.",
+          "responsible": "IO + Telecom/Platform Provider",
+          "estimated_time": "12-24 hours"
+        },
+        {
+          "step_number": 2,
+          "action": "Issue warning to perpetrator",
+          "description": "Once identified, issue official warning through police notice or summon for counseling.",
+          "responsible": "IO",
+          "estimated_time": "24 hours"
+        },
+        {
+          "step_number": 3,
+          "action": "Provide psychological counseling to victim",
+          "description": "Connect victim with police counselor or NGO for mental health support.",
+          "responsible": "IO + Counselor",
+          "estimated_time": "48 hours"
+        },
+        {
+          "step_number": 4,
+          "action": "Arrest if threats continue",
+          "description": "If perpetrator continues stalking after warning, arrest under IPC 354D and produce before magistrate.",
+          "responsible": "IO + Local Police",
+          "estimated_time": "As required"
+        }
+      ],
+      "required_authorities": [
+        "Telecom Provider",
+        "Social Media Platforms",
+        "Police Counselor"
+      ],
+      "documentation_required": [
+        "Call logs",
+        "Screenshots of messages",
+        "CDR report",
+        "Victim statement"
+      ]
+    },
+    
+    "sextortion": {
+      "category_name": "Sextortion / Cyber Blackmail",
+      "category_keywords": [
+        "obscene content", "morphed photos", "blackmail", "video call nude",
+        "intimate photos", "will viral", "send to family", "money demand",
+        "screen recording", "private photos"
+      ],
+      "priority": "CRITICAL",
+      "deadline_hours": 12,
+      "legal_sections": [
+        "IT Act 66E - Violation of privacy",
+        "IT Act 67 - Publishing obscene material",
+        "IPC 354C - Voyeurism",
+        "IPC 384 - Extortion",
+        "IPC 506 - Criminal intimidation"
+      ],
+      "investigation_steps": [
+        {
+          "step_number": 1,
+          "action": "IMMEDIATELY warn victim not to pay any money",
+          "description": "Contact victim immediately. Paying encourages more demands. Do NOT share any more images or money.",
+          "responsible": "IO",
+          "estimated_time": "30 minutes"
+        },
+        {
+          "step_number": 2,
+          "action": "Preserve all digital evidence",
+          "description": "Secure screenshots of chats, video call screenshots, blackmail messages, payment demands, social media profiles.",
+          "responsible": "IO / Victim",
+          "estimated_time": "2 hours"
+        },
+        {
+          "step_number": 3,
+          "action": "Trace IP and account details of blackmailer",
+          "description": "Request platform (WhatsApp/Instagram/Telegram) to provide IP logs and account creation details.",
+          "responsible": "IO + Platform Provider",
+          "estimated_time": "24 hours"
+        },
+        {
+          "step_number": 4,
+          "action": "Coordinate with platform to block content",
+          "description": "If content already shared, send legal notice to platform to remove all copies.",
+          "responsible": "IO + Legal Cell",
+          "estimated_time": "24 hours"
+        },
+        {
+          "step_number": 5,
+          "action": "Register immediate FIR",
+          "description": "File FIR under IT Act 66E, 67 and IPC 354C, 384. Mention urgency and threat of content going viral.",
+          "responsible": "IO",
+          "estimated_time": "4 hours"
+        },
+        {
+          "step_number": 6,
+          "action": "Provide victim counseling",
+          "description": "Victim may feel shame or guilt. Provide reassurance that they are not at fault. Connect to mental health support.",
+          "responsible": "IO + Counselor",
+          "estimated_time": "2 hours"
+        }
+      ],
+      "documentation_required": [
+        "Screenshots of blackmail messages",
+        "Payment transaction details",
+        "Platform account details",
+        "Victim statement",
+        "FIR copy"
+      ]
+    },
+    
+    "online_job_fraud": {
+      "category_name": "Online Job Fraud / Recruitment Scam",
+      "category_keywords": [
+        "work from home", "registration fee", "training fee", "fake job",
+        "amazon job", "flipkart job", "data entry job", "processing fee",
+        "job offer", "salary", "hr call"
+      ],
+      "priority": "MEDIUM",
+      "deadline_hours": 72,
+      "legal_sections": [
+        "IPC 420 - Cheating",
+        "IPC 406 - Criminal breach of trust",
+        "IT Act 66D - Cheating by impersonation",
+        "IPC 34 - Common intention"
+      ],
+      "investigation_steps": [
+        {
+          "step_number": 1,
+          "action": "Trace payment and beneficiary details",
+          "description": "Follow money trail using transaction ID/UPT. Identify beneficiary account.",
+          "responsible": "IO",
+          "estimated_time": "24 hours"
+        },
+        {
+          "step_number": 2,
+          "action": "Identify fake company/HR details",
+          "description": "Search for similar complaints using same company name, phone number, or website.",
+          "responsible": "IO",
+          "estimated_time": "24 hours"
+        },
+        {
+          "step_number": 3,
+          "action": "Coordinate with banks for freeze",
+          "description": "Request freeze of beneficiary account if amount is significant.",
+          "responsible": "IO + Bank",
+          "estimated_time": "48 hours"
+        },
+        {
+          "step_number": 4,
+          "action": "Register FIR under IPC 420",
+          "description": "File case documenting the fake job offer and financial loss.",
+          "responsible": "IO",
+          "estimated_time": "4 hours"
+        }
+      ],
+      "documentation_required": [
+        "Job offer screenshot",
+        "Payment transaction proof",
+        "Call recordings/screenshots",
+        "Company details",
+        "FIR copy"
+      ]
+    },
+    
+    "loan_app_fraud": {
+      "category_name": "Loan App Fraud / Digital Lending Scam",
+      "category_keywords": [
+        "loan app", "instant loan", "rapid loan", "cash loan", "emi miss",
+        "contact access", "gallery access", "morphed photos", "harassment calls",
+        "recovery agent", "abusive calls"
+      ],
+      "priority": "HIGH",
+      "deadline_hours": 24,
+      "legal_sections": [
+        "IT Act 66E - Violation of privacy",
+        "IT Act 67 - Publishing obscene material",
+        "IPC 384 - Extortion",
+        "IPC 506 - Criminal intimidation",
+        "IPC 354C - Voyeurism"
+      ],
+      "investigation_steps": [
+        {
+          "step_number": 1,
+          "action": "IMMEDIATELY request Google/Apple to remove the app",
+          "description": "Send legal request to Google Play Store / Apple App Store to take down the fraudulent loan app.",
+          "responsible": "IO + Legal Cell",
+          "estimated_time": "24 hours"
+        },
+        {
+          "step_number": 2,
+          "action": "Trace app developer and bank account",
+          "description": "Identify developer details from app listing and trace linked bank account for loan disbursement.",
+          "responsible": "IO + Cyber Cell",
+          "estimated_time": "48 hours"
+        },
+        {
+          "step_number": 3,
+          "action": "Coordinate with banks to freeze accounts",
+          "description": "Freeze both loan disbursement account and EMI collection accounts.",
+          "responsible": "IO + Bank Nodal Officer",
+          "estimated_time": "48 hours"
+        },
+        {
+          "step_number": 4,
+          "action": "Issue public warning about app",
+          "description": "Publish warning about the specific loan app on police social media and website.",
+          "responsible": "PRO / SP",
+          "estimated_time": "4 hours"
+        },
+        {
+          "step_number": 5,
+          "action": "Register FIR under relevant sections",
+          "description": "Include privacy violation, extortion, and obscene content sharing in FIR.",
+          "responsible": "IO",
+          "estimated_time": "4 hours"
+        }
+      ],
+      "documentation_required": [
+        "App name and screenshot",
+        "Loan transaction details",
+        "Screenshots of harassing messages/calls",
+        "Morphed content proof (if any)",
+        "Google/Play Store response",
+        "FIR copy"
+      ]
+    }
+  },
+  
+  "default_sop": {
+    "category_name": "General Cyber Crime",
+    "priority": "MEDIUM",
+    "deadline_hours": 72,
+    "legal_sections": [
+      "IT Act 66 - Computer-related offenses",
+      "IPC applicable sections"
+    ],
+    "investigation_steps": [
+      {
+        "step_number": 1,
+        "action": "Register complaint in NCRP portal",
+        "description": "Ensure complaint is registered in National Cyber Crime Reporting Portal.",
+        "responsible": "IO / Support Staff",
+        "estimated_time": "1 hour"
+      },
+      {
+        "step_number": 2,
+        "action": "Collect all digital evidence",
+        "description": "Preserve all screenshots, call logs, messages, transaction proofs.",
+        "responsible": "IO / Victim",
+        "estimated_time": "4 hours"
+      },
+      {
+        "step_number": 3,
+        "action": "Classify crime type and assign investigating officer",
+        "description": "Based on AI classification, assign appropriate IO with relevant expertise.",
+        "responsible": "CCI",
+        "estimated_time": "4 hours"
+      },
+      {
+        "step_number": 4,
+        "action": "Initiate investigation as per category SOP",
+        "description": "Follow category-specific SOP from this document.",
+        "responsible": "IO",
+        "estimated_time": "As per category"
+      }
+    ]
+  },
+  
+  "metadata": {
+    "version": "1.0",
+    "last_updated": "2026-05-16",
+    "authority": "Uttar Pradesh Police - Cyber Crime Cell",
+    "compliance": "RBI Guidelines, IT Act 2000, IPC, NDPS Act, Arms Act",
+    "review_cycle": "Quarterly",
+    "next_review": "2026-08-16"
+  }
+}

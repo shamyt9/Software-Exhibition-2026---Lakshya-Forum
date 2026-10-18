@@ -1,0 +1,410 @@
+{% extends "base.html" %} {% block content %}
+
+<div
+    style="
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    "
+>
+    <div>
+        <h2 style="color: #111827">Priority Case Queue</h2>
+        <p style="color: #6B7280; margin-top: 4px">
+            Cases sorted by risk level — High priority on top
+        </p>
+    </div>
+    <a
+        href="{{ url_for('complaint.list_complaints') }}"
+        style="color: #3B82F6; text-decoration: none"
+        >← All Complaints</a
+    >
+</div>
+
+<!-- Summary badges -->
+<div style="display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap">
+    <div
+        style="
+            background: #FEE2E2;
+            color: #DC2626;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 15px;
+        "
+    >
+        🔴 HIGH: {{ total_high }}
+    </div>
+    <div
+        style="
+            background: #FEF3C7;
+            color: #D97706;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 15px;
+        "
+    >
+        🟡 MEDIUM: {{ total_medium }}
+    </div>
+    <div
+        style="
+            background: #D1FAE5;
+            color: #047857;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 15px;
+        "
+    >
+        🟢 LOW: {{ total_low }}
+    </div>
+</div>
+
+<!-- HIGH RISK -->
+{% if high %}
+<div
+    class="section-card"
+    style="margin-bottom: 24px; border-top: 4px solid #DC2626"
+>
+    <h3
+        style="
+            color: #DC2626;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #FECACA;
+        "
+    >
+        🔴 High Risk Cases ({{ total_high }})
+    </h3>
+    <div style="overflow-x: auto">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Complaint ID</th>
+                    <th>Complainant</th>
+                    <th>District</th>
+                    <th>Category</th>
+                    <th>Amount (Rs.)</th>
+                    <th>Risk Score</th>
+                    <th>Status</th>
+                    <th>Assigned To</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in high %}
+                <tr style="background: #FEF2F2">
+                    <td><code>{{ c.complaint_id }}</code></td>
+                    <td>{{ c.complainant }}</td>
+                    <td>{{ c.district }}</td>
+                    <td style="font-size: 13px">
+                        {{ c.category_label | replace('_',' ') | title }}
+                    </td>
+                    <td>
+                        {{ "{:,.0f}".format(c.amount) if c.amount else "—" }}
+                    </td>
+                    <td>
+                        <span
+                            style="
+                                background: #FEE2E2;
+                                color: #DC2626;
+                                padding: 3px 10px;
+                                border-radius: 20px;
+                                font-weight: bold;
+                                font-size: 13px;
+                            "
+                        >
+                            {{ c.risk_score }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge badge-{{ c.status }}">
+                            {{ c.status | replace('_',' ') | title }}</span
+                        >
+                    </td>
+                    <td style="font-size: 13px; color: #374151">
+                        {{ c.assigned_to }}
+                    </td>
+                    <td>
+                        <a
+                            href="{{ url_for('complaint.view_complaint', cmp_id=c.complaint_id) }}"
+                            class="btn-sm"
+                            >View</a
+                        >
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- MEDIUM RISK -->
+{% if medium %}
+<div
+    class="section-card"
+    style="margin-bottom: 24px; border-top: 4px solid #D97706"
+>
+    <h3
+        style="
+            color: #D97706;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #FED7AA;
+        "
+    >
+        🟡 Medium Risk Cases ({{ total_medium }})
+    </h3>
+    <div style="overflow-x: auto">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Complaint ID</th>
+                    <th>Complainant</th>
+                    <th>District</th>
+                    <th>Category</th>
+                    <th>Amount (Rs.)</th>
+                    <th>Risk Score</th>
+                    <th>Status</th>
+                    <th>Assigned To</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in medium %}
+                <tr>
+                    <td><code>{{ c.complaint_id }}</code></td>
+                    <td>{{ c.complainant }}</td>
+                    <td>{{ c.district }}</td>
+                    <td style="font-size: 13px">
+                        {{ c.category_label | replace('_',' ') | title }}
+                    </td>
+                    <td>
+                        {{ "{:,.0f}".format(c.amount) if c.amount else "—" }}
+                    </td>
+                    <td>
+                        <span
+                            style="
+                                background: #FEF3C7;
+                                color: #D97706;
+                                padding: 3px 10px;
+                                border-radius: 20px;
+                                font-weight: bold;
+                                font-size: 13px;
+                            "
+                        >
+                            {{ c.risk_score }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge badge-{{ c.status }}">
+                            {{ c.status | replace('_',' ') | title }}</span
+                        >
+                    </td>
+                    <td style="font-size: 13px; color: #555">
+                        {{ c.assigned_to }}
+                    </td>
+                    <td>
+                        <a
+                            href="{{ url_for('complaint.view_complaint', cmp_id=c.complaint_id) }}"
+                            class="btn-sm"
+                            >View</a
+                        >
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- LOW RISK -->
+{% if low %}
+<div class="section-card" style="border-top: 4px solid #10b981">
+    <h3
+        style="
+            color: #10b981;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+        "
+    >
+        🟢 Low Risk Cases ({{ total_low }})
+    </h3>
+    <div style="overflow-x: auto">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Complaint ID</th>
+                    <th>Complainant</th>
+                    <th>District</th>
+                    <th>Category</th>
+                    <th>Amount (Rs.)</th>
+                    <th>Risk Score</th>
+                    <th>Status</th>
+                    <th>Assigned To</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in low %}
+                <tr>
+                    <td><code>{{ c.complaint_id }}</code></td>
+                    <td>{{ c.complainant }}</td>
+                    <td>{{ c.district }}</td>
+                    <td style="font-size: 13px">
+                        {{ c.category_label | replace('_',' ') | title }}
+                    </td>
+                    <td>
+                        {{ "{:,.0f}".format(c.amount) if c.amount else "—" }}
+                    </td>
+                    <td>
+                        <span
+                            style="
+                                background: rgba(16, 185, 129, 0.1);
+                                color: #10b981;
+                                padding: 3px 10px;
+                                border-radius: 20px;
+                                font-weight: bold;
+                                font-size: 13px;
+                            "
+                        >
+                            {{ c.risk_score }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge badge-{{ c.status }}">
+                            {{ c.status | replace('_',' ') | title }}</span
+                        >
+                    </td>
+                    <td style="font-size: 13px; color: #555">
+                        {{ c.assigned_to }}
+                    </td>
+                    <td>
+                        <a
+                            href="{{ url_for('complaint.view_complaint', cmp_id=c.complaint_id) }}"
+                            class="btn-sm"
+                            >View</a
+                        >
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Pagination -->
+{% if total_high > 0 or total_medium > 0 or total_low > 0 %}
+<div
+    style="
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 24px;
+        padding: 16px;
+        background: var(--bg-secondary);
+        border-radius: 8px;
+    "
+>
+    <div style="color: var(--text-secondary); font-size: 14px">
+        Page {{ page }} of {{ total_pages }}
+    </div>
+    <div style="display: flex; gap: 12px; align-items: center">
+        {% if has_prev %}
+        <a
+            href="{{ url_for('complaint.priority_queue', page=page-1) }}"
+            class="btn-sm"
+            style="padding: 8px 16px"
+            >← Previous</a
+        >
+        {% else %}
+        <button
+            disabled
+            style="
+                opacity: 0.5;
+                cursor: not-allowed;
+                padding: 8px 16px;
+                background: var(--bg-secondary);
+                border: 1px solid var(--border-color);
+                border-radius: 6px;
+                color: var(--text-secondary);
+            "
+        >
+            ← Previous
+        </button>
+        {% endif %}
+
+        <div style="display: flex; gap: 6px">
+            {% for p in range(max(1, page - 2), min(total_pages + 1, page + 3))
+            %} {% if p == page %}
+            <button
+                style="
+                    width: 36px;
+                    height: 36px;
+                    background: var(--primary-color);
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    cursor: default;
+                    font-weight: 500;
+                "
+            >
+                {{ p }}
+            </button>
+            {% else %}
+            <a
+                href="{{ url_for('complaint.priority_queue', page=p) }}"
+                style="
+                    width: 36px;
+                    height: 36px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: var(--bg-secondary);
+                    color: var(--text-primary);
+                    border: 1px solid var(--border-color);
+                    border-radius: 6px;
+                    text-decoration: none;
+                    transition: all 0.2s;
+                "
+                >{{ p }}</a
+            >
+            {% endif %} {% endfor %}
+        </div>
+
+        {% if has_next %}
+        <a
+            href="{{ url_for('complaint.priority_queue', page=page+1) }}"
+            class="btn-sm"
+            style="padding: 8px 16px"
+            >Next →</a
+        >
+        {% else %}
+        <button
+            disabled
+            style="
+                opacity: 0.5;
+                cursor: not-allowed;
+                padding: 8px 16px;
+                background: var(--bg-secondary);
+                border: 1px solid var(--border-color);
+                border-radius: 6px;
+                color: var(--text-secondary);
+            "
+        >
+            Next →
+        </button>
+        {% endif %}
+    </div>
+</div>
+{% endif %} {% if not high and not medium and not low %}
+<div style="text-align: center; padding: 60px; color: #aaa">
+    <p style="font-size: 18px">No classified complaints yet.</p>
+    <p>Register complaints and AI will auto-classify them.</p>
+</div>
+{% endif %} {% endblock %}

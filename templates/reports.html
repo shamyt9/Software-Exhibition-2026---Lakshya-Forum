@@ -1,0 +1,509 @@
+{% extends "base.html" %} {% block content %}
+
+<div class="classification-header" style="margin-bottom: 32px">
+    <div
+        style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        "
+    >
+        <div>
+            <h2 style="margin: 0; font-size: 28px; letter-spacing: -0.5px">
+                📊 Analytics & Reports
+            </h2>
+            <p
+                style="
+                    margin: 8px 0 0 0;
+                    font-size: 15px;
+                    opacity: 0.95;
+                    font-weight: 500;
+                "
+            >
+                Comprehensive cybercrime statistics for Uttar Pradesh
+            </p>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <a
+                href="{{ url_for('complaint.list_complaints') }}"
+                style="
+                    color: #059669;
+                    text-decoration: none;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    transition: all 0.3s;
+                    padding: 8px 16px;
+                    font-size: 14px;
+                    font-weight: 500;
+                    background: #D1FAE5;
+                    border: 1px solid #A7F3D0;
+                    border-radius: 24px;
+                "
+                onmouseover="this.style.background='#059669'; this.style.color='white'; this.style.borderColor='#059669';"
+                onmouseout="this.style.background='#D1FAE5'; this.style.color='#059669'; this.style.borderColor='#A7F3D0';"
+                >← Complaints</a
+            >
+            <a
+                href="{{ url_for('dashboard.home') }}"
+                style="
+                    color: #3B82F6;
+                    text-decoration: none;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    transition: all 0.3s;
+                    padding: 8px 16px;
+                    font-size: 14px;
+                    font-weight: 500;
+                    background: #EFF6FF;
+                    border: 1px solid #BFDBFE;
+                    border-radius: 24px;
+                "
+                onmouseover="this.style.background='#3B82F6'; this.style.color='white'; this.style.borderColor='#3B82F6';"
+                onmouseout="this.style.background='#EFF6FF'; this.style.color='#3B82F6'; this.style.borderColor='#BFDBFE';"
+                >← Dashboard</a
+            >
+        </div>
+    </div>
+</div>
+
+<!-- Top KPIs -->
+<div class="kpi-grid" style="margin-bottom: 28px">
+    <div class="kpi-card kpi-blue">
+        <div class="kpi-number">{{ total }}</div>
+        <div class="kpi-label">Total Complaints</div>
+    </div>
+    <div class="kpi-card kpi-red">
+        <div class="kpi-number">{{ high_risk }}</div>
+        <div class="kpi-label">High Risk Cases</div>
+    </div>
+    <div class="kpi-card kpi-green">
+        <div class="kpi-number">{{ classified }}</div>
+        <div class="kpi-label">AI Classified</div>
+    </div>
+    <div class="kpi-card kpi-orange">
+        <div class="kpi-number">{{ fir_count }}</div>
+        <div class="kpi-label">FIRs Generated</div>
+    </div>
+</div>
+
+<!-- Total amount lost -->
+<div
+    style="
+        background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        color: white;
+        padding: 32px 28px;
+        border-radius: 12px;
+        margin-bottom: 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
+        border: 1px solid #FECACA;
+        position: relative;
+        overflow: hidden;
+    "
+>
+    <div style="position: relative; z-index: 1">
+        <div
+            style="
+                font-size: 14px;
+                opacity: 0.9;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+            "
+        >
+            💰 Total Amount Involved
+        </div>
+        <div
+            style="
+                font-size: 42px;
+                font-weight: 900;
+                margin-top: 8px;
+                letter-spacing: -0.5px;
+            "
+        >
+            Rs. {{ "{:,.0f}".format(total_amount) }}
+        </div>
+    </div>
+    <div
+        style="
+            font-size: 120px;
+            opacity: 0.3;
+            position: absolute;
+            right: 20px;
+            bottom: -20px;
+        "
+    >
+        ₹
+    </div>
+</div>
+
+<!-- Category + Status row -->
+<div class="charts-row" style="margin-bottom: 32px">
+    <!-- Category breakdown -->
+    <div class="chart-card">
+        <h3>📋 Complaints by Crime Type</h3>
+        <div style="height: 350px; position: relative">
+            <canvas id="reportCategoryChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Status breakdown -->
+    <div class="chart-card">
+        <h3>✅ Complaints by Status</h3>
+        <div style="height: 350px; position: relative">
+            <canvas id="reportStatusChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- District + Risk row -->
+<div class="charts-row" style="margin-bottom: 32px">
+    <!-- District breakdown -->
+    <div class="chart-card">
+        <h3>🗺️ Complaints by District</h3>
+        <div style="height: 400px; position: relative">
+            <canvas id="reportDistrictChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Risk breakdown -->
+    <div class="chart-card">
+        <h3>⚠️ Risk Level Distribution</h3>
+        <div style="height: 400px; position: relative">
+            <canvas id="reportRiskChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- Category Chart (Horizontal Bar) ---
+        const catData = {{ cat_data | tojson | safe }};
+        const catLabels = catData.filter(d => d._id).map(d => d._id.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()));
+        const catCounts = catData.filter(d => d._id).map(d => d.count);
+
+        new Chart(document.getElementById('reportCategoryChart'), {
+            type: 'bar',
+            data: {
+                labels: catLabels,
+                datasets: [{
+                    label: 'Cases',
+                    data: catCounts,
+                    backgroundColor: '#3B82F6',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { beginAtZero: true, grid: { display: false } },
+                    y: { grid: { display: false }, ticks: { font: { size: 11, weight: '600' } } }
+                }
+            }
+        });
+
+        // --- Status Chart (Doughnut) ---
+        const statusData = {{ status_data | tojson | safe }};
+        const statusLabels = statusData.filter(d => d._id).map(d => d._id.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()));
+        const statusCounts = statusData.filter(d => d._id).map(d => d.count);
+        const statusColorsMap = {
+            'submitted': '#3B82F6', 'classified': '#059669', 'assigned': '#059669',
+            'fir_drafted': '#D97706', 'fir_registered': '#1D4ED8', 'closed': '#6B7280'
+        };
+        const statusColors = statusData.filter(d => d._id).map(d => statusColorsMap[d._id] || '#3B82F6');
+
+        new Chart(document.getElementById('reportStatusChart'), {
+            type: 'doughnut',
+            data: {
+                labels: statusLabels,
+                datasets: [{
+                    data: statusCounts,
+                    backgroundColor: statusColors,
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { usePointStyle: true, font: { weight: '600' } } }
+                },
+                cutout: '60%'
+            }
+        });
+
+        // --- District Chart (Bar) ---
+        const distData = {{ dist_data | tojson | safe }};
+        const distLabels = distData.filter(d => d._id).map(d => d._id);
+        const distCounts = distData.filter(d => d._id).map(d => d.count);
+
+        new Chart(document.getElementById('reportDistrictChart'), {
+            type: 'bar',
+            data: {
+                labels: distLabels,
+                datasets: [{
+                    label: 'Cases',
+                    data: distCounts,
+                    backgroundColor: '#DC2626',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { display: false } },
+                    x: { grid: { display: false }, ticks: { font: { size: 10, weight: '600' } } }
+                }
+            }
+        });
+
+        // --- Risk Chart (Pie) ---
+        const riskData = {{ risk_data | tojson | safe }};
+        const riskLabels = riskData.filter(d => d._id).map(d => d._id);
+        const riskCounts = riskData.filter(d => d._id).map(d => d.count);
+        const riskColorsMap = { 'HIGH': '#DC2626', 'MEDIUM': '#D97706', 'LOW': '#059669' };
+        const riskColors = riskData.filter(d => d._id).map(d => riskColorsMap[d._id] || '#6B7280');
+
+        new Chart(document.getElementById('reportRiskChart'), {
+            type: 'pie',
+            data: {
+                labels: riskLabels,
+                datasets: [{
+                    data: riskCounts,
+                    backgroundColor: riskColors,
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { usePointStyle: true, font: { weight: '600' } } }
+                }
+            }
+        });
+    });
+</script>
+
+<!-- Heatmaps Row -->
+<div style="margin-bottom: 32px">
+    <div class="chart-card" style="width: 100%; margin-bottom: 24px">
+        <h3>🕒 Temporal Activity Heatmap (Day vs Hour)</h3>
+        <p style="font-size: 13px; color: #64748B; margin-bottom: 20px">Identifies peak hours for cybercrime reports across the week</p>
+        <div style="overflow-x: auto">
+            <div id="temporalHeatmap" class="heatmap-grid" style="min-width: 800px">
+                <!-- Will be populated by JS -->
+            </div>
+        </div>
+        <div style="display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-top: 16px; font-size: 12px; color: #64748B;">
+            <span>Low Activity</span>
+            <div style="display: flex; gap: 2px">
+                <div style="width: 12px; height: 12px; background: #fee2e2; border-radius: 2px"></div>
+                <div style="width: 12px; height: 12px; background: #fecaca; border-radius: 2px"></div>
+                <div style="width: 12px; height: 12px; background: #f87171; border-radius: 2px"></div>
+                <div style="width: 12px; height: 12px; background: #dc2626; border-radius: 2px"></div>
+                <div style="width: 12px; height: 12px; background: #991b1b; border-radius: 2px"></div>
+            </div>
+            <span>High Activity</span>
+        </div>
+    </div>
+
+    <div class="chart-card" style="width: 100%">
+        <h3>🏙️ District vs Category Matrix</h3>
+        <p style="font-size: 13px; color: #64748B; margin-bottom: 20px">Mapping crime categories to the most affected districts</p>
+        <div style="overflow-x: auto">
+            <div id="matrixHeatmap" class="heatmap-grid" style="min-width: 800px">
+                <!-- Will be populated by JS -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .heatmap-grid {
+        display: grid;
+        gap: 4px;
+        padding: 10px;
+    }
+    .heatmap-cell {
+        aspect-ratio: 1;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+        min-width: 28px;
+        min-height: 28px;
+    }
+    .heatmap-cell:hover {
+        transform: scale(1.1);
+        z-index: 10;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .heatmap-label {
+        font-size: 11px;
+        font-weight: 600;
+        color: #64748B;
+        display: flex;
+        align-items: center;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- Temporal Heatmap (7 days x 24 hours) ---
+        const temporalData = {{ temporal_data | tojson | safe }};
+        const tempContainer = document.getElementById('temporalHeatmap');
+        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        
+        // 1 header row (Empty corner + 24 hours) + 7 days
+        tempContainer.style.gridTemplateColumns = `80px repeat(24, 1fr)`;
+        
+        // Header (Hours)
+        const corner = document.createElement('div');
+        tempContainer.appendChild(corner);
+        for(let i=0; i<24; i++) {
+            const h = document.createElement('div');
+            h.className = 'heatmap-label';
+            h.style.justifyContent = 'center';
+            h.textContent = i + 'h';
+            tempContainer.appendChild(h);
+        }
+
+        // Data Rows
+        const maxTemp = Math.max(...temporalData.map(d => d.count), 1);
+        
+        for(let d=1; d<=7; d++) {
+            const label = document.createElement('div');
+            label.className = 'heatmap-label';
+            label.textContent = days[d-1];
+            tempContainer.appendChild(label);
+            
+            for(let h=0; h<24; h++) {
+                const cell = document.createElement('div');
+                cell.className = 'heatmap-cell';
+                
+                const entry = temporalData.find(item => item._id.day === d && item._id.hour === h);
+                const count = entry ? entry.count : 0;
+                
+                if (count > 0) {
+                    const intensity = count / maxTemp;
+                    cell.style.background = `rgba(220, 38, 38, ${0.1 + intensity * 0.9})`;
+                    cell.style.color = intensity > 0.5 ? 'white' : '#991b1b';
+                    cell.textContent = count;
+                    cell.title = `${days[d-1]}, ${h}:00 - ${count} cases`;
+                } else {
+                    cell.style.background = '#f8fafc';
+                    cell.style.color = '#e2e8f0';
+                    cell.textContent = '0';
+                }
+                tempContainer.appendChild(cell);
+            }
+        }
+
+        // --- District vs Category Matrix ---
+        const matrixData = {{ matrix_data | tojson | safe }};
+        const matrixContainer = document.getElementById('matrixHeatmap');
+        
+        // Extract unique districts (top 15) and categories
+        const allDistricts = [...new Set(matrixData.map(d => d._id.district))].slice(0, 15);
+        const allCategories = [...new Set(matrixData.map(d => d._id.category))];
+        
+        matrixContainer.style.gridTemplateColumns = `120px repeat(${allCategories.length}, 1fr)`;
+        
+        // Header (Categories)
+        const mCorner = document.createElement('div');
+        matrixContainer.appendChild(mCorner);
+        allCategories.forEach(cat => {
+            const c = document.createElement('div');
+            c.className = 'heatmap-label';
+            c.style.fontSize = '9px';
+            c.style.textAlign = 'center';
+            c.style.justifyContent = 'center';
+            c.textContent = cat.replace(/_/g, ' ').toUpperCase();
+            matrixContainer.appendChild(c);
+        });
+
+        const maxMatrix = Math.max(...matrixData.map(d => d.count), 1);
+
+        allDistricts.forEach(dist => {
+            const label = document.createElement('div');
+            label.className = 'heatmap-label';
+            label.textContent = dist;
+            matrixContainer.appendChild(label);
+            
+            allCategories.forEach(cat => {
+                const cell = document.createElement('div');
+                cell.className = 'heatmap-cell';
+                
+                const entry = matrixData.find(item => item._id.district === dist && item._id.category === cat);
+                const count = entry ? entry.count : 0;
+                
+                if (count > 0) {
+                    const intensity = count / maxMatrix;
+                    cell.style.background = `rgba(59, 130, 246, ${0.1 + intensity * 0.9})`;
+                    cell.style.color = intensity > 0.5 ? 'white' : '#1e3a8a';
+                    cell.textContent = count;
+                    cell.title = `${dist} | ${cat}: ${count} cases`;
+                } else {
+                    cell.style.background = '#f8fafc';
+                    cell.textContent = '';
+                }
+                matrixContainer.appendChild(cell);
+            });
+        });
+    });
+</script>
+
+<!-- Amount table -->
+{% if amount_data %}
+<div class="section-card">
+    <h3 style="margin-bottom: 24px">💵 Financial Loss by Crime Category</h3>
+    <div style="overflow-x: auto">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Crime Category</th>
+                    <th>No. of Cases</th>
+                    <th>Total Amount (Rs.)</th>
+                    <th>Average Loss (Rs.)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in amount_data %} {% if item._id %}
+                <tr>
+                    <td>
+                        <strong style="color: var(--text-primary)"
+                            >{{ item._id | replace('_',' ') | title }}</strong
+                        >
+                    </td>
+                    <td style="font-weight: 600; color: var(--accent-cyan)">
+                        {{ item.count }}
+                    </td>
+                    <td style="color: var(--accent-purple); font-weight: 900">
+                        ₹ {{ "{:,.0f}".format(item.total_amount) if
+                        item.total_amount else '0' }}
+                    </td>
+                    <td style="color: var(--text-secondary); font-weight: 600">
+                        ₹ {{ "{:,.0f}".format(item.avg_amount) if
+                        item.avg_amount else '0' }}
+                    </td>
+                </tr>
+                {% endif %} {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %} {% endblock %}

@@ -1,0 +1,1174 @@
+{% extends "base.html" %} {% block content %}
+<div style="max-width: 1200px; margin: 0 auto; padding: 20px">
+    <!-- Header Section -->
+    <div style="margin-bottom: 30px">
+        <div
+            style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 15px;
+            "
+        >
+            <div>
+                <h1
+                    style="
+                        color: #111827;
+                        font-size: 28px;
+                        font-weight: 800;
+                        margin: 0 0 12px 0;
+                    "
+                >
+                    📋 {{ complaint.complaint_id }}
+                </h1>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap">
+                    <span class="badge badge-{{ complaint.status }}"
+                        >{{ complaint.status | replace('_',' ') | upper }}</span
+                    >
+                    {% if complaint.risk_level %}<span
+                        class="badge badge-{{ complaint.risk_level | lower }}"
+                        >⚠️ RISK: {{ complaint.risk_level }}</span
+                    >{% endif %} {% if complaint.crime_type and
+                    complaint.crime_type != 'pending_ai' %}<span
+                        style="
+                            background: #DBEAFE;
+                            color: #1D4ED8;
+                            padding: 6px 16px;
+                            border-radius: 20px;
+                            font-size: 12px;
+                            font-weight: 600;
+                        "
+                        >🏷️ {{ complaint.crime_type | replace('_',' ') | title
+                        }}</span
+                    >{% endif %}
+                </div>
+            </div>
+            <a
+                href="{{ url_for('complaint.list_complaints') }}"
+                style="
+                    color: #3b82f6;
+                    text-decoration: none;
+                    font-weight: 600;
+                    padding: 10px 20px;
+                    border: 2px solid #3b82f6;
+                    border-radius: 10px;
+                    transition: all 0.2s;
+                "
+                >← Back to Complaints</a
+            >
+        </div>
+    </div>
+
+    <!-- AI CLASSIFICATION CARD -->
+    {% if prediction %}
+    <div
+        style="
+            background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            overflow: hidden;
+            border: 1px solid #BFDBFE;
+        "
+    >
+        <div
+            style="
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                flex-wrap: wrap;
+                gap: 16px;
+            "
+        >
+            <div>
+                <div
+                    style="
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        margin-bottom: 12px;
+                    "
+                >
+                    <span
+                        style="
+                            background: rgba(255, 255, 255, 0.25);
+                            padding: 8px 16px;
+                            border-radius: 20px;
+                            font-size: 12px;
+                            font-weight: 700;
+                            letter-spacing: 0.5px;
+                        "
+                        >🤖 AI CLASSIFIED</span
+                    >
+                </div>
+                <div
+                    style="
+                        font-size: 24px;
+                        font-weight: 800;
+                        color: white;
+                        margin-bottom: 4px;
+                    "
+                >
+                    {{ prediction.category_label }}
+                </div>
+                <div style="opacity: 0.95; color: white; font-size: 13px">
+                    Confidence: {{ (prediction.confidence * 100) | round(1) }}%
+                </div>
+            </div>
+            <a
+                href="{{ urls.ai_result }}"
+                style="
+                    color: white;
+                    font-weight: 700;
+                    text-decoration: underline;
+                    padding: 12px 24px;
+                    background: rgba(255, 255, 255, 0.15);
+                    border-radius: 8px;
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    transition: all 0.2s;
+                "
+                >View Full Report →</a
+            >
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- FUND REVERSAL SUPPORT CARD (Financial Fraud Only) -->
+    {% if (complaint.crime_type == 'financial_fraud' or complaint.crime_type == 'cyber_financial_fraud') and transaction and transaction.txn_id and transaction.amount > 0 %}
+    <div class="detail-card" style="margin-bottom: 24px; border: 2px solid #3B82F6; border-radius: 12px; overflow: hidden; background: white; box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.1);">
+        <div style="background: #EFF6FF; padding: 16px 24px; border-bottom: 2px solid #3B82F6; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 20px;">🛡️</span>
+                <h3 style="margin: 0; color: #1D4ED8; font-size: 16px; font-weight: 800; letter-spacing: 0.5px;">
+                    FUND REVERSAL SUPPORT
+                </h3>
+            </div>
+            <div id="rbi-deadline" style="display: flex; align-items: center; gap: 8px;">
+                {% set hours = ((now - complaint.submitted_at).total_seconds() / 3600) | int if now else 0 %}
+                <div style="font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase;">RBI Guideline: 24-48h Action</div>
+                {% if hours < 24 %}
+                    <span style="background: #D1FAE5; color: #065F46; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; border: 1px solid #A7F3D0;">🟢 COMPLIANT ({{ hours }}h)</span>
+                {% elif hours < 48 %}
+                    <span style="background: #FEF3C7; color: #92400E; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; border: 1px solid #FDE68A;">🟡 URGENT ({{ hours }}h)</span>
+                {% else %}
+                    <span style="background: #FEE2E2; color: #991B1B; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; border: 1px solid #FECACA;">🔴 CRITICAL ({{ hours }}h)</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div style="padding: 24px;">
+            <!-- AI Summary Section -->
+            <div style="background: #F8FAFC; padding: 20px; border-radius: 12px; border-left: 5px solid #3B82F6; margin-bottom: 24px; position: relative;">
+                <div style="position: absolute; top: 12px; right: 16px; font-size: 18px; opacity: 0.2;">🤖</div>
+                <div style="font-size: 11px; text-transform: uppercase; color: #3B82F6; font-weight: 800; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                    AI CASE SUMMARY
+                </div>
+                <div style="font-size: 14px; line-height: 1.7; color: #334155; font-weight: 500;">
+                    {{ ai_summary | default("No AI summary available.") }}
+                </div>
+            </div>
+
+            <!-- Visual Progress Tracker -->
+            <div style="margin-bottom: 32px;">
+                <div style="font-size: 11px; text-transform: uppercase; color: #64748B; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 6px;">
+                    ⚙️ REVERSAL PROGRESS TRACKER
+                </div>
+                {% set statuses = [
+                    ('pending', 'Freeze Request Sent'),
+                    ('acknowledged', 'Bank Acknowledged'),
+                    ('frozen', 'Transaction Frozen'),
+                    ('initiated', 'Reversal Initiated'),
+                    ('recovered', 'Amount Recovered')
+                ] %}
+                {% set ns = namespace(current_idx=0) %}
+                {% for s_val, s_label in statuses %}
+                    {% if complaint.reversal_status == s_val %}
+                        {% set ns.current_idx = loop.index0 %}
+                    {% endif %}
+                {% endfor %}
+                {% set current_idx = ns.current_idx %}
+                
+                <div style="display: flex; justify-content: space-between; position: relative; margin-top: 20px;">
+                    <div style="position: absolute; top: 15px; left: 0; right: 0; height: 4px; background: #E2E8F0; z-index: 1;"></div>
+                    <div style="position: absolute; top: 15px; left: 0; width: {{ (current_idx / (statuses|length - 1)) * 100 }}%; height: 4px; background: #3B82F6; z-index: 2; transition: width 0.5s ease;"></div>
+                    
+                    {% for s_val, s_label in statuses %}
+                        <div style="z-index: 3; text-align: center; width: 80px;">
+                            <div style="width: 34px; height: 34px; border-radius: 50%; background: {% if loop.index0 <= current_idx %}#3B82F6{% else %}white{% endif %}; border: 3px solid {% if loop.index0 <= current_idx %}#3B82F6{% else %}#E2E8F0{% endif %}; color: {% if loop.index0 <= current_idx %}white{% else %}#94A3B8{% endif %}; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-weight: 800; font-size: 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+                                {% if loop.index0 < current_idx %}✓{% elif loop.index0 == current_idx %}●{% else %}{{ loop.index }}{% endif %}
+                            </div>
+                            <div style="font-size: 10px; font-weight: 700; color: {% if loop.index0 <= current_idx %}#1E40AF{% else %}#94A3B8{% endif %}; line-height: 1.2;">
+                                {{ s_label }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px;">
+                <!-- Timeline Section -->
+                <div>
+                    <div style="font-size: 11px; text-transform: uppercase; color: #64748B; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 6px;">
+                        🕒 TRANSACTION TIMELINE
+                    </div>
+                    <div style="position: relative; padding-left: 24px; border-left: 2px dashed #CBD5E1; margin-left: 10px;">
+                        <!-- Registration -->
+                        <div style="margin-bottom: 20px; position: relative;">
+                            <div style="position: absolute; left: -31px; top: 0; width: 12px; height: 12px; border-radius: 50%; background: #3B82F6; border: 2px solid white; box-shadow: 0 0 0 2px #3B82F6;"></div>
+                            <div style="font-size: 13px; font-weight: 700; color: #1E293B;">Complaint Registered</div>
+                            <div style="font-size: 11px; color: #64748B;">{{ complaint.submitted_at.strftime('%d %b, %H:%M') if complaint.submitted_at else 'N/A' }}</div>
+                        </div>
+                        
+                        <!-- AI Classification -->
+                        {% if prediction %}
+                        <div style="margin-bottom: 20px; position: relative;">
+                            <div style="position: absolute; left: -31px; top: 0; width: 12px; height: 12px; border-radius: 50%; background: #8B5CF6; border: 2px solid white; box-shadow: 0 0 0 2px #8B5CF6;"></div>
+                            <div style="font-size: 13px; font-weight: 700; color: #1E293B;">AI Classification Complete</div>
+                            <div style="font-size: 11px; color: #64748B;">{{ prediction.predicted_at.strftime('%d %b, %H:%M') if prediction.predicted_at else 'N/A' }}</div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Freeze Requests -->
+                        {% for freeze in freezes %}
+                        <div style="margin-bottom: 20px; position: relative;">
+                            <div style="position: absolute; left: -31px; top: 0; width: 12px; height: 12px; border-radius: 50%; background: #EF4444; border: 2px solid white; box-shadow: 0 0 0 2px #EF4444;"></div>
+                            <div style="font-size: 13px; font-weight: 700; color: #1E293B;">Freeze Request: {{ freeze.bank_name }}</div>
+                            <div style="font-size: 11px; color: #64748B;">{{ freeze.request_timestamp.strftime('%d %b, %H:%M') if freeze.request_timestamp else 'N/A' }}</div>
+                            
+                            {% if freeze.bank_response %}
+                            <div style="margin-top: 4px; padding: 4px 8px; background: #F0FDF4; border-radius: 4px; display: inline-block;">
+                                <div style="font-size: 10px; font-weight: 700; color: #166534;">BANK RESPONSE: {{ freeze.bank_response | upper }}</div>
+                                <div style="font-size: 9px; color: #166534;">{{ freeze.bank_response_timestamp.strftime('%d %b, %H:%M') if freeze.bank_response_timestamp else '' }}</div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Action Section -->
+                <div>
+                    <div style="font-size: 11px; text-transform: uppercase; color: #64748B; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 6px;">
+                        ⚡ REVERSAL ACTIONS
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
+                        <a href="{{ urls.generate_bank_letter }}" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: #1D4ED8; color: white; padding: 12px 20px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 14px; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(29, 78, 216, 0.2);">
+                            <span>📄</span> Generate Official Bank Letter
+                        </a>
+                        <div style="font-size: 11px; color: #64748B; background: #F8FAFC; padding: 10px; border-radius: 8px; border: 1px dashed #CBD5E1;">
+                            <strong>Note:</strong> Letter includes Section 66C/66D IT Act and 420 IPC citations for immediate bank compliance.
+                        </div>
+                    </div>
+                    
+                    {% if current_user.role in ['admin', 'supervisor', 'sp', 'cci', 'io'] %}
+                    <div style="background: #F1F5F9; padding: 20px; border-radius: 12px; border: 1px solid #E2E8F0;">
+                        <div style="font-size: 11px; font-weight: 800; color: #475569; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Update Reversal Progress</div>
+                        <select onchange="updateReversalStatus(this.value)" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #CBD5E1; font-size: 13px; font-weight: 600; color: #1E293B; background: white; cursor: pointer; outline: none; transition: border-color 0.2s;">
+                            {% for s_val, s_label in statuses %}
+                            <option value="{{ s_val }}" {% if complaint.reversal_status == s_val %}selected{% endif %}>{{ loop.index }}. {{ s_label }}</option>
+                            {% endfor %}
+                        </select>
+                        <div style="font-size: 10px; color: #64748B; margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+                            <span>Last update: {{ complaint.reversal_updated_at.strftime('%d %b, %H:%M') if complaint.reversal_updated_at else 'Never' }}</span>
+                            <span style="background: #E2E8F0; padding: 2px 6px; border-radius: 4px;">Role: {{ current_user.role | upper }}</span>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div style="background: #FFF7ED; padding: 16px; border-radius: 12px; border: 1px solid #FFEDD5; color: #9A3412; font-size: 12px; font-weight: 600; display: flex; align-items: flex-start; gap: 10px;">
+                        <span>🔒</span>
+                        <span>Only authorized personnel (Admin/SP/CCI/IO) can update reversal status.</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function updateReversalStatus(status) {
+            if(!confirm("Are you sure you want to update the fund reversal status to: " + status.replace('_', ' ').toUpperCase() + "?")) {
+                location.reload();
+                return;
+            }
+            fetch("{{ urls.update_reversal_status }}", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: status })
+            }).then(res => res.json()).then(data => {
+                if(data.success) {
+                    location.reload();
+                } else {
+                    alert("Error: " + data.error);
+                }
+            });
+        }
+    </script>
+    {% endif %}
+
+    <!-- COMPLAINANT INFO CARD -->
+    <div class="detail-card" style="margin-bottom: 24px">
+        <div
+            style="
+                background: #F3F4F6;
+                padding: 16px 20px;
+                border-bottom: 2px solid #D1D5DB;
+            "
+        >
+            <h3
+                style="
+                    margin: 0;
+                    color: #111827;
+                    font-size: 16px;
+                    font-weight: 700;
+                "
+            >
+                👤 COMPLAINANT INFORMATION
+            </h3>
+        </div>
+        <div style="padding: 20px">
+            <div
+                style="
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                    gap: 16px;
+                "
+            >
+                {% if complaint.complainant_name %}
+                <div
+                    style="
+                        background: #F9FAFB;
+                        padding: 16px;
+                        border-radius: 8px;
+                        border-left: 4px solid #3B82F6;
+                    "
+                >
+                    <div
+                        style="
+                            font-size: 11px;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                            color: #6B7280;
+                            font-weight: 600;
+                            margin-bottom: 8px;
+                        "
+                    >
+                        Name
+                    </div>
+                    <div style="font-size: 15px; font-weight: 600; color: #111827">
+                        {{ complaint.complainant_name }}
+                    </div>
+                </div>
+                {% endif %} {% if complaint.email %}
+                <div
+                    style="
+                        background: #F9FAFB;
+                        padding: 16px;
+                        border-radius: 8px;
+                        border-left: 4px solid #8b5cf6;
+                    "
+                >
+                    <div
+                        style="
+                            font-size: 11px;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                            opacity: 0.7;
+                            font-weight: 600;
+                            margin-bottom: 8px;
+                        "
+                    >
+                        Email
+                    </div>
+                    <div style="font-size: 14px; word-break: break-all">
+                        {{ complaint.email }}
+                    </div>
+                </div>
+                {% endif %} {% if complaint.phone %}
+                <div
+                    style="
+                        background: #F9FAFB;
+                        padding: 16px;
+                        border-radius: 8px;
+                        border-left: 4px solid #06b6d4;
+                    "
+                >
+                    <div
+                        style="
+                            font-size: 11px;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                            opacity: 0.7;
+                            font-weight: 600;
+                            margin-bottom: 8px;
+                        "
+                    >
+                        Phone
+                    </div>
+                    <div style="font-size: 15px; font-weight: 600">
+                        {{ complaint.phone }}
+                    </div>
+                </div>
+                {% endif %} {% if complaint.district %}
+                <div
+                    style="
+                        background: #F9FAFB;
+                        padding: 16px;
+                        border-radius: 8px;
+                        border-left: 4px solid #f59e0b;
+                    "
+                >
+                    <div
+                        style="
+                            font-size: 11px;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                            opacity: 0.7;
+                            font-weight: 600;
+                            margin-bottom: 8px;
+                        "
+                    >
+                        District
+                    </div>
+                    <div style="font-size: 15px; font-weight: 600">
+                        {{ complaint.district }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- COMPLAINT DETAILS CARD -->
+    <div class="detail-card" style="margin-bottom: 24px">
+        <div
+            style="
+                background: #F9FAFB;
+                padding: 16px 20px;
+                border-bottom: 2px solid #334155;
+                color:#101111;
+            "
+        >
+            <h3
+                style="
+                    margin: 0;
+                    color: #101111;
+                    font-size: 16px;
+                    font-weight: 700;
+                "
+            >
+                📝 COMPLAINT DETAILS
+            </h3>
+        </div>
+        <div style="padding: 20px">
+            {% if complaint.description %}
+            <div
+                style="
+                    margin-bottom: 20px;
+                    background: #F9FAFB;
+                    padding: 16px;
+                    border-radius: 8px;
+                    border-left: 4px solid #3b82f6;
+                "
+            >
+                <div
+                    style="
+                        font-size: 11px;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                        opacity: 0.7;
+                        font-weight: 600;
+                        margin-bottom: 8px;
+                    "
+                >
+                    Description
+                </div>
+                <div style="line-height: 1.8; color: #e2e8f0; font-size: 14px">
+                    {{ complaint.description }}
+                </div>
+            </div>
+            {% endif %}
+            <div
+                style="
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                    gap: 16px;
+                "
+            >
+                <div
+                    style="
+                        background: #F9FAFB;
+                        padding: 16px;
+                        border-radius: 8px;
+                    "
+                >
+                    <div
+                        style="
+                            font-size: 11px;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                            opacity: 0.7;
+                            font-weight: 600;
+                            margin-bottom: 8px;
+                        "
+                    >
+                        Date Reported
+                    </div>
+                    <div style="font-size: 15px; font-weight: 600">
+                        {% if complaint.complaint_date %}{{
+                        complaint.complaint_date.strftime('%d %b %Y') }}{% else
+                        %}Not provided{% endif %}
+                    </div>
+                </div>
+                <div
+                    style="
+                        background: #F9FAFB;
+                        padding: 16px;
+                        border-radius: 8px;
+                    "
+                >
+                    <div
+                        style="
+                            font-size: 11px;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                            opacity: 0.7;
+                            font-weight: 600;
+                            margin-bottom: 8px;
+                        "
+                    >
+                        Current Status
+                    </div>
+                    <div style="font-size: 15px; font-weight: 600">
+                        {{ complaint.status | replace('_',' ') | title }}
+                    </div>
+                </div>
+                {% if complaint.crime_type %}
+                <div
+                    style="
+                        background: #F9FAFB;
+                        padding: 16px;
+                        border-radius: 8px;
+                    "
+                >
+                    <div
+                        style="
+                            font-size: 11px;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                            opacity: 0.7;
+                            font-weight: 600;
+                            margin-bottom: 8px;
+                        "
+                    >
+                        Crime Type
+                    </div>
+                    <div style="font-size: 15px; font-weight: 600">
+                        {{ complaint.crime_type | replace('_',' ') | title }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- RISK ASSESSMENT CARD -->
+    {% if risk %}
+    <div class="detail-card" style="margin-bottom: 24px">
+        <div
+            style="
+                background: #F9FAFB;
+                padding: 16px 20px;
+                border-bottom: 2px solid #334155;
+            "
+        >
+            <h3
+                style="
+                    margin: 0;
+                    color: #101111;
+                    font-size: 16px;
+                    font-weight: 700;
+                "
+            >
+                ⚠️ RISK ASSESSMENT
+            </h3>
+        </div>
+        <div style="padding: 20px">
+            <div
+                style="
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                    gap: 16px;
+                "
+            >
+                <div
+                    style="background: #F9FAFB; padding: 16px; border-radius: 8px; border-left: 4px solid {% if risk.risk_level == 'HIGH' %}#dc2626{% elif risk.risk_level == 'MEDIUM' %}#f59e0b{% else %}#10b981{% endif %};"
+                >
+                    <div
+                        style="
+                            font-size: 11px;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                            opacity: 0.7;
+                            font-weight: 600;
+                            margin-bottom: 8px;
+                        "
+                    >
+                        Risk Level
+                    </div>
+                    <div style="font-size: 18px; font-weight: 800">
+                        {{ risk.risk_level }}
+                    </div>
+                </div>
+                <div
+                    style="
+                        background: #F9FAFB;
+                        padding: 16px;
+                        border-radius: 8px;
+                        border-left: 4px solid #3b82f6;
+                    "
+                >
+                    <div
+                        style="
+                            font-size: 11px;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                            opacity: 0.7;
+                            font-weight: 600;
+                            margin-bottom: 8px;
+                        "
+                    >
+                        Risk Score
+                    </div>
+                    <div style="font-size: 24px; font-weight: 800">
+                        {{ risk.risk_score | default(0) }}<span
+                            style="font-size: 12px; opacity: 0.6"
+                            >/100</span
+                        >
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- TRANSACTION INFO CARD -->
+    {% if transaction %}
+    <div class="detail-card" style="margin-bottom: 24px">
+        <div
+            style="
+                background: #F9FAFB;
+                padding: 16px 20px;
+                border-bottom: 2px solid #334155;
+            "
+        >
+            <h3
+                style="
+                    margin: 0;
+                    color: #0d0d0d;
+                    font-size: 16px;
+                    font-weight: 700;
+                "
+            >
+                💰 TRANSACTION DETAILS
+            </h3>
+        </div>
+        <div style="padding: 20px">
+            <div
+                style="
+                    background: linear-gradient(
+                        135deg,
+                        #fef3c7 0%,
+                        #fed7aa 100%
+                    );
+                    padding: 20px;
+                    border-radius: 8px;
+                    border-left: 4px solid #dc2626;
+                "
+            >
+                <div
+                    style="
+                        display: grid;
+                        grid-template-columns: repeat(
+                            auto-fit,
+                            minmax(200px, 1fr)
+                        );
+                        gap: 20px;
+                        color: #92400e;
+                    "
+                >
+                    {% if transaction.amount %}
+                    <div>
+                        <div
+                            style="
+                                font-size: 11px;
+                                text-transform: uppercase;
+                                letter-spacing: 0.5px;
+                                opacity: 0.9;
+                                font-weight: 700;
+                                margin-bottom: 6px;
+                            "
+                        >
+                            Amount
+                        </div>
+                        <div style="font-size: 20px; font-weight: 800">
+                            ₹{{ transaction.amount }}
+                        </div>
+                    </div>
+                    {% endif %} {% if transaction.utr %}
+                    <div>
+                        <div
+                            style="
+                                font-size: 11px;
+                                text-transform: uppercase;
+                                letter-spacing: 0.5px;
+                                opacity: 0.9;
+                                font-weight: 700;
+                                margin-bottom: 6px;
+                            "
+                        >
+                            UTR/Reference
+                        </div>
+                        <div
+                            style="
+                                font-size: 13px;
+                                font-weight: 700;
+                                word-break: break-all;
+                            "
+                        >
+                            {{ transaction.utr }}
+                        </div>
+                    </div>
+                    {% endif %} {% if transaction.bank %}
+                    <div>
+                        <div
+                            style="
+                                font-size: 11px;
+                                text-transform: uppercase;
+                                letter-spacing: 0.5px;
+                                opacity: 0.9;
+                                font-weight: 700;
+                                margin-bottom: 6px;
+                            "
+                        >
+                            Bank
+                        </div>
+                        <div style="font-size: 13px; font-weight: 700">
+                            {{ transaction.bank }}
+                        </div>
+                    </div>
+                    {% endif %} {% if transaction.beneficiary_account %}
+                    <div>
+                        <div
+                            style="
+                                font-size: 11px;
+                                text-transform: uppercase;
+                                letter-spacing: 0.5px;
+                                opacity: 0.9;
+                                font-weight: 700;
+                                margin-bottom: 6px;
+                            "
+                        >
+                            Beneficiary Account
+                        </div>
+                        <div
+                            style="
+                                font-size: 13px;
+                                font-weight: 700;
+                                word-break: break-all;
+                            "
+                        >
+                            {{ transaction.beneficiary_account }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- INVESTIGATION SOP CARD -->
+    {% if sop %}
+    <div class="detail-card" style="margin-bottom: 24px; border: 1px solid #BFDBFE; border-radius: 12px; overflow: hidden; background: white; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
+        <div style="background: #EFF6FF; padding: 20px; border-bottom: 1px solid #BFDBFE; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div>
+                <h3 style="margin: 0; color: #1E40AF; font-size: 18px; font-weight: 800;">
+                    📋 INVESTIGATION SOP: {{ sop.category_name }}
+                </h3>
+                <div style="margin-top: 4px; color: #1E40AF; font-size: 13px; font-weight: 500; opacity: 0.8;">
+                    Standard Operating Procedure · Deadline: {{ sop.deadline_hours }} Hours
+                </div>
+                {% if sop.category_name == "General Cyber Crime" %}
+                <div style="margin-top: 8px; background: #DBEAFE; color: #1E40AF; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid #BFDBFE;">
+                    ℹ️ Standard procedure - please follow general cyber crime investigation guidelines.
+                </div>
+                {% endif %}
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                {% set p_color = "#3b82f6" %}
+                {% if "CRITICAL" in sop.priority %}{% set p_color = "#ef4444" %}
+                {% elif "HIGH" in sop.priority %}{% set p_color = "#f97316" %}
+                {% elif "MEDIUM" in sop.priority %}{% set p_color = "#3b82f6" %}
+                {% elif "LOW" in sop.priority %}{% set p_color = "#10b981" %}
+                {% endif %}
+                <span style="background: {{ p_color }}; color: white; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;">
+                    PRIORITY: {{ sop.priority }}
+                </span>
+            </div>
+        </div>
+        
+        <div style="padding: 24px;">
+            <!-- Legal Sections -->
+            <div style="margin-bottom: 24px;">
+                <h4 style="color: #475569; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                    ⚖️ Suggested Legal Sections
+                </h4>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                    {% for section in sop.legal_sections %}
+                    <span style="background: #F8FAFC; border: 1px solid #E2E8F0; color: #475569; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 600;">
+                        {{ section }}
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Investigation Steps -->
+            <div style="margin-bottom: 24px;">
+                <h4 style="color: #475569; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px;">
+                    ⏱️ Time-Bound Investigation Steps
+                </h4>
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    {% for step in sop.investigation_steps %}
+                    <div style="display: flex; gap: 16px; background: #F9FAFB; padding: 16px; border-radius: 10px; border-left: 4px solid {{ p_color }};">
+                        <div style="min-width: 32px; height: 32px; background: white; border: 2px solid {{ p_color }}; color: {{ p_color }}; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px;">
+                            {{ step.step_number }}
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; flex-wrap: wrap; gap: 8px;">
+                                <div style="font-weight: 700; color: #1E293B; font-size: 15px;">{{ step.action }}</div>
+                                <div style="font-size: 11px; background: #E2E8F0; color: #475569; padding: 2px 8px; border-radius: 4px; font-weight: 700;">{{ step.estimated_time }}</div>
+                            </div>
+                            <p style="margin: 0 0 8px 0; color: #64748B; font-size: 13px; line-height: 1.5;">{{ step.description }}</p>
+                            <div style="display: flex; align-items: center; gap: 4px; color: #1E40AF; font-size: 12px; font-weight: 600;">
+                                👤 <span style="opacity: 0.8;">Responsible:</span> {{ step.responsible }}
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <input type="checkbox" 
+                                   class="sop-checkbox" 
+                                   data-step="{{ step.step_number }}"
+                                   {% if complaint.sop_progress and complaint.sop_progress.get(step.step_number|string) %}checked{% endif %}
+                                   style="width: 22px; height: 22px; cursor: pointer; accent-color: {{ p_color }};">
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+                <!-- Required Authorities -->
+                {% if sop.required_authorities %}
+                <div style="background: #F1F5F9; padding: 16px; border-radius: 10px;">
+                    <h4 style="color: #334155; font-size: 13px; font-weight: 700; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                        🏢 Required Authorities
+                    </h4>
+                    <ul style="margin: 0; padding-left: 20px; color: #475569; font-size: 13px; line-height: 1.8;">
+                        {% for auth in sop.required_authorities %}
+                        <li>{{ auth }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <!-- Documentation -->
+                {% if sop.documentation_required %}
+                <div style="background: #FFF7ED; padding: 16px; border-radius: 10px; border-left: 4px solid #F97316;">
+                    <h4 style="color: #9A3412; font-size: 13px; font-weight: 700; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                        📂 Required Documentation
+                    </h4>
+                    <ul style="margin: 0; padding-left: 20px; color: #9A3412; font-size: 13px; line-height: 1.8;">
+                        {% for doc in sop.documentation_required %}
+                        <li>{{ doc }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+
+            <div style="margin-top: 24px; padding-top: 24px; border-top: 1px dashed #CBD5E1; display: flex; justify-content: flex-end;">
+                <a href="{{ urls.download_sop_pdf }}" style="background: white; border: 1px solid #CBD5E1; color: #475569; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; text-decoration: none; transition: all 0.2s;">
+                    📥 Download Investigation Report (PDF)
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('.sop-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const stepNumber = this.getAttribute('data-step');
+                const completed = this.checked;
+                
+                fetch("{{ urls.update_sop_step }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        step_number: stepNumber,
+                        completed: completed
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('SOP Progress Updated:', data);
+                    // Visual feedback
+                    if (completed) {
+                        this.closest('div[style*="background: #F9FAFB"]').style.opacity = '0.7';
+                    } else {
+                        this.closest('div[style*="background: #F9FAFB"]').style.opacity = '1';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating SOP progress:', error);
+                    alert('Failed to update progress. Please check your connection.');
+                });
+            });
+            
+            // Initial visual state
+            if (checkbox.checked) {
+                checkbox.closest('div[style*="background: #F9FAFB"]').style.opacity = '0.7';
+            }
+        });
+    </script>
+    {% endif %}
+
+    <!-- STATUS UPDATE CARD -->
+    {% if current_user.role in ['admin', 'supervisor'] %}
+    <div class="detail-card" style="margin-bottom: 24px">
+        <div
+            style="
+                background:#F9FAFB;
+                padding: 16px 20px;
+                border-bottom: 2px solid #334155;
+            "
+        >
+            <h3
+                style="
+                    margin: 0;
+                    
+                    color: black;
+                    font-size: 16px;
+                    font-weight: 700;
+                "
+            >
+                ⚙️ UPDATE STATUS
+            </h3>
+        </div>
+        <div style="padding: 20px">
+            <form
+                method="POST"
+                action="{{ urls.update_status }}"
+                style="
+                    display: flex;
+                    gap: 12px;
+                    flex-wrap: wrap;
+                    align-items: center;
+                "
+            >
+                <select
+                    name="status"
+                    style="
+                        flex: 1;
+                        min-width: 280px;
+                        padding: 12px 16px;
+                        border-radius: 8px;
+                        border: 1px solid #475569;
+                        background: #1e293b;
+                        color: #f1f5f9;
+                        font-weight: 500;
+                    "
+                >
+                   <option
+    value="submitted"
+    {% if complaint.status == "submitted" %}selected{% endif %}
+>
+    📋 SUBMITTED
+</option>
+<option
+    value="classified"
+    {% if complaint.status == "classified" %}selected{% endif %}
+>
+    🤖 CLASSIFIED
+</option>
+<option
+    value="under_review"
+    {% if complaint.status == "under_review" %}selected{% endif %}
+>
+    🔍 UNDER REVIEW
+</option>
+<option
+    value="assigned"
+    {% if complaint.status == "assigned" %}selected{% endif %}
+>
+    👮 ASSIGNED TO OFFICER
+</option>
+<option
+    value="in_progress"
+    {% if complaint.status == "in_progress" %}selected{% endif %}
+>
+    ⚙️ IN PROGRESS
+</option>
+<option
+    value="freeze_requested"
+    {% if complaint.status == "freeze_requested" %}selected{% endif %}
+>
+    ❄️ FREEZE REQUESTED
+</option>
+<option
+    value="fir_drafted"
+    {% if complaint.status == "fir_drafted" %}selected{% endif %}
+>
+    📄 FIR DRAFTED
+</option>
+<option
+    value="fir_registered"
+    {% if complaint.status == "fir_registered" %}selected{% endif %}
+>
+    ✅ FIR REGISTERED
+</option>
+<option
+    value="resolved"
+    {% if complaint.status == "resolved" %}selected{% endif %}
+>
+    🎯 RESOLVED
+</option>
+<option
+    value="untraced"
+    {% if complaint.status == "untraced" %}selected{% endif %}
+>
+    🔍 UNTRACED
+</option>
+<option
+    value="closed"
+    {% if complaint.status == "closed" %}selected{% endif %}
+>
+    🔒 CLOSED
+</option>
+                </select>
+                <button
+                    type="submit"
+                    class="btn-primary"
+                    style="
+                        padding: 12px 28px;
+                        font-weight: 700;
+                        border-radius: 8px;
+                    "
+                >
+                    ✓ Update
+                </button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ACTION BUTTONS CARD -->
+    <div class="detail-card" style="margin-bottom: 24px">
+        <div
+            style="
+                background: #F9FAFB;
+                padding: 16px 20px;
+                border-bottom: 2px solid #334155;
+            "
+        >
+            <h3
+                style="
+                    margin: 0;
+                    color: black;
+                    font-size: 16px;
+                    font-weight: 700;
+                "
+            >
+                ⚡ AVAILABLE ACTIONS
+            </h3>
+        </div>
+        <div style="padding: 20px">
+            <div style="display: flex; gap: 12px; flex-wrap: wrap">
+                <a
+                    href="{{ urls.ai_classify }}"
+                    style="
+                        padding: 11px 22px;
+                        border: 2px solid #38bdf8;
+                        border-radius: 8px;
+                        color: #38bdf8;
+                        text-decoration: none;
+                        font-weight: 600;
+                        transition: all 0.2s;
+                        background: rgba(56, 189, 248, 0.05);
+                    "
+                    >🔄 Re-run AI</a
+                >
+                <a
+                    href="{{ urls.fir_view }}"
+                    style="
+                        padding: 11px 22px;
+                        background: #3b82f6;
+                        color: white;
+                        border-radius: 8px;
+                        text-decoration: none;
+                        font-weight: 600;
+                        transition: all 0.2s;
+                    "
+                    >📄 Generate FIR</a
+                >
+                {% if current_user.role in ['admin', 'supervisor', 'sp', 'cci',
+                'io'] and prediction and ('fraud' in prediction.category.lower()
+                or 'financial' in prediction.category.lower()) %}<a
+                    href="{{ urls.freeze_generate }}"
+                    style="
+                        padding: 11px 22px;
+                        background: linear-gradient(
+                            135deg,
+                            #dc2626 0%,
+                            #991b1b 100%
+                        );
+                        color: white;
+                        border-radius: 8px;
+                        text-decoration: none;
+                        font-weight: 600;
+                        transition: all 0.2s;
+                    "
+                    >❄️ Request Freeze</a
+                >{% endif %} {% if current_user.role in ['admin', 'supervisor']
+                %}<a
+                    href="{{ urls.assignment_assign }}"
+                    style="
+                        padding: 11px 22px;
+                        border: 2px solid #f59e0b;
+                        border-radius: 8px;
+                        color: #f59e0b;
+                        text-decoration: none;
+                        font-weight: 600;
+                        transition: all 0.2s;
+                        background: rgba(245, 158, 11, 0.05);
+                    "
+                    >👮 Assign Officer</a
+                >{% endif %} {% if current_user.role == 'admin' %}<a
+                    href="{{ urls.complaint_edit }}"
+                    style="
+                        padding: 11px 22px;
+                        border: 2px solid #a78bfa;
+                        border-radius: 8px;
+                        color: #a78bfa;
+                        text-decoration: none;
+                        font-weight: 600;
+                        transition: all 0.2s;
+                        background: rgba(167, 139, 250, 0.05);
+                    "
+                    >✏️ Edit</a
+                >{% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
