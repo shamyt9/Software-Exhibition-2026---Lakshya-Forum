@@ -1,8 +1,4 @@
-# 📋 **Complete README.md – Copy & Paste Ready**
-
-Copy the entire block below and paste it into your `README.md` file:
-
-```markdown
+```
 <div align="center">
 
 # 🛡️ AI-CM-DSS
